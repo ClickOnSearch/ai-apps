@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import { runGithubAgent, type Provider } from "./providers.js";
+import { runGithubAgent, isProvider, PROVIDERS, type Provider } from "./providers.js";
 
 const DEFAULT_GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
 
@@ -12,8 +12,8 @@ function parseArgs(argv: string[]): { provider?: Provider; prompt: string } {
     const arg = argv[i];
     if (arg === "--provider" || arg === "-p") {
       const value = argv[++i];
-      if (value !== "openai" && value !== "claude") {
-        throw new Error(`--provider must be "openai" or "claude", got "${value ?? "<missing>"}"`);
+      if (!isProvider(value)) {
+        throw new Error(`--provider must be one of ${PROVIDERS.join(", ")}, got "${value ?? "<missing>"}"`);
       }
       provider = value;
     } else {
@@ -28,9 +28,9 @@ function resolveProvider(fromFlag: Provider | undefined): Provider {
   if (fromFlag) return fromFlag;
 
   const fromEnv = process.env.PROVIDER;
-  if (fromEnv === "openai" || fromEnv === "claude") return fromEnv;
+  if (isProvider(fromEnv)) return fromEnv;
   if (fromEnv) {
-    throw new Error(`PROVIDER must be "openai" or "claude", got "${fromEnv}"`);
+    throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
 
   return "openai";
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   const { provider: providerFlag, prompt } = parseArgs(process.argv.slice(2));
 
   if (!prompt) {
-    console.error('Usage: github-agent [--provider openai|claude] "<prompt>"');
+    console.error(`Usage: github-agent [--provider ${PROVIDERS.join("|")}] "<prompt>"`);
     console.error("(provider also settable via the PROVIDER env var; defaults to openai)");
     process.exitCode = 1;
     return;

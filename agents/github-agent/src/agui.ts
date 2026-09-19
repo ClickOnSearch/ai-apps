@@ -3,11 +3,7 @@ import type { Response } from "express";
 import { EventType, contentToText } from "@ag-ui/core";
 import type { BaseEvent, Message, RunAgentInput } from "@ag-ui/core";
 import { EventEncoder } from "@ag-ui/encoder";
-import { runGithubAgent, type Provider } from "./providers.js";
-
-function isProvider(value: unknown): value is Provider {
-  return value === "openai" || value === "claude";
-}
+import { runGithubAgent, isProvider, type Provider } from "./providers.js";
 
 /**
  * The bridges only take a single prompt string, not a structured message

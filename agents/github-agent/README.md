@@ -1,8 +1,9 @@
 # github-agent
 
 Talks to GitHub through [GitHub's remote MCP server](https://api.githubcopilot.com/mcp/),
-routed through either [`openai-remote-mcp-bridge`](../../bridges/openai-remote-mcp-bridge)
-or [`claude-remote-mcp-bridge`](../../bridges/claude-remote-mcp-bridge) depending on
+routed through [`openai-remote-mcp-bridge`](../../bridges/openai-remote-mcp-bridge),
+[`claude-remote-mcp-bridge`](../../bridges/claude-remote-mcp-bridge), or
+[`deepseek-remote-mcp-bridge`](../../bridges/deepseek-remote-mcp-bridge) depending on
 which model provider you prefer — chosen per run, not hardcoded.
 
 Two ways to use it:
@@ -24,16 +25,27 @@ bridge's `McpManager` + `runAgent` the caller picked:
   (OpenAI tool schema) + Chat Completions tool-calling loop.
 - `provider: "claude"` → `claude-remote-mcp-bridge`'s `McpManager`
   (Anthropic tool schema) + Messages API tool-use loop.
+- `provider: "deepseek"` → `deepseek-remote-mcp-bridge`'s `McpManager`
+  (OpenAI-compatible tool schema) + Chat Completions tool-calling loop,
+  via the `openai` SDK pointed at DeepSeek's endpoint.
 
-Both bridges implement the same `McpServerConfig` shape, so this package
+Every bridge implements the same `McpServerConfig` shape, so this package
 just swaps which one it imports at call time — the GitHub MCP connection
 and tool discovery work identically either way.
 
 ```
-                    ┌── provider: openai ──▶ openai-remote-mcp-bridge ──┐
-prompt + GITHUB_TOKEN ┤                                                  ├──▶ GitHub remote MCP server
-                    └── provider: claude ──▶ claude-remote-mcp-bridge ──┘
+                    ┌── provider: openai   ──▶ openai-remote-mcp-bridge   ──┐
+prompt + GITHUB_TOKEN ┤── provider: claude   ──▶ claude-remote-mcp-bridge   ├──▶ GitHub remote MCP server
+                    └── provider: deepseek ──▶ deepseek-remote-mcp-bridge ──┘
 ```
+
+**Adding a new provider:** add a `runWith*` function in `src/providers.ts`
+following the existing three, add its name to the `Provider` type and the
+`PROVIDERS` array (everything else — CLI flag validation, the `PROVIDER`
+env var, the AG-UI `forwardedProps.provider` check, and the chat UI's
+dropdown in `public/index.html` — reads off that one list or needs one
+matching `<option>` added), then document its env vars below and in
+`.env.example`.
 
 ## Setup
 
@@ -51,7 +63,7 @@ Then configure this agent:
 ```bash
 cd agents/github-agent
 cp .env.example .env
-# fill in GITHUB_TOKEN, and OPENAI_API_KEY and/or ANTHROPIC_API_KEY
+# fill in GITHUB_TOKEN, and whichever of OPENAI_API_KEY / ANTHROPIC_API_KEY / DEEPSEEK_API_KEY you'll use
 ```
 
 ## Run: CLI
@@ -62,6 +74,7 @@ default):
 ```bash
 npm run dev -- --provider openai "list my 5 most recently updated open PRs"
 npm run dev -- --provider claude "summarize open issues labeled bug in this repo"
+npm run dev -- --provider deepseek "what's changed in this repo this week?"
 ```
 
 or build and run the compiled CLI:
@@ -94,8 +107,8 @@ This starts an HTTP server (default `http://localhost:3000`) with:
 - `GET /health` — liveness check.
 
 Per-request provider override (falls back to the server's `PROVIDER` env
-var default): set `forwardedProps: { provider: "openai" | "claude" }` on
-the `RunAgentInput` you POST — the bundled chat UI's dropdown does this
+var default): set `forwardedProps: { provider: "openai" | "claude" | "deepseek" }`
+on the `RunAgentInput` you POST — the bundled chat UI's dropdown does this
 for you.
 
 **Known limitation:** the underlying bridges run a single-turn agent loop
@@ -117,6 +130,9 @@ continuity, but coarser than a provider-native multi-turn conversation.
 | `OPENAI_MODEL`        | no (default `gpt-4.1`)|                                                       |
 | `ANTHROPIC_API_KEY`   | when provider=claude  |                                                       |
 | `ANTHROPIC_MODEL`     | no (default `claude-sonnet-5`) |                                              |
+| `DEEPSEEK_API_KEY`    | when provider=deepseek |                                                      |
+| `DEEPSEEK_MODEL`      | no (default `deepseek-chat`) |                                                |
+| `DEEPSEEK_BASE_URL`   | no (default `https://api.deepseek.com`) |                                     |
 
 ## Using it as a library
 

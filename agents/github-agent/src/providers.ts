@@ -1,6 +1,19 @@
 import type { McpServerConfig } from "openai-remote-mcp-bridge";
 
-export type Provider = "openai" | "claude";
+export type Provider = "openai" | "claude" | "deepseek";
+
+/**
+ * Single source of truth for which providers exist. Adding a new remote
+ * MCP bridge means: add its `runWith*` function below, add it here, and
+ * add its API key/model env vars to the README/.env.example. Everything
+ * else (CLI flag validation, PROVIDER env validation, the AG-UI
+ * forwardedProps.provider check) reads off this list.
+ */
+export const PROVIDERS: readonly Provider[] = ["openai", "claude", "deepseek"];
+
+export function isProvider(value: unknown): value is Provider {
+  return typeof value === "string" && (PROVIDERS as readonly string[]).includes(value);
+}
 
 export const GITHUB_SERVER_NAME = "github";
 
@@ -81,7 +94,41 @@ async function runWithClaude(options: RunGithubAgentOptions): Promise<string> {
   }
 }
 
+async function runWithDeepSeek(options: RunGithubAgentOptions): Promise<string> {
+  const { McpManager, runAgent } = await import("deepseek-remote-mcp-bridge");
+  const { default: OpenAI } = await import("openai");
+
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing DEEPSEEK_API_KEY environment variable");
+  }
+
+  const mcp = new McpManager();
+  await mcp.connectAll([githubServerConfig(options.githubToken, options.githubMcpUrl)]);
+
+  try {
+    const deepseek = new OpenAI({
+      apiKey,
+      baseURL: process.env.DEEPSEEK_BASE_URL ?? "https://api.deepseek.com",
+    });
+    return await runAgent({
+      deepseek,
+      model: process.env.DEEPSEEK_MODEL ?? "deepseek-chat",
+      systemPrompt: options.systemPrompt,
+      userPrompt: options.prompt,
+      mcp,
+      onToolCall: options.onToolCall,
+      onToolResult: options.onToolResult,
+      onAssistantText: options.onAssistantText,
+    });
+  } finally {
+    await mcp.closeAll();
+  }
+}
+
 /** Runs the GitHub MCP agent through the requested provider's remote MCP bridge. */
 export async function runGithubAgent(provider: Provider, options: RunGithubAgentOptions): Promise<string> {
-  return provider === "claude" ? runWithClaude(options) : runWithOpenAi(options);
+  if (provider === "claude") return runWithClaude(options);
+  if (provider === "deepseek") return runWithDeepSeek(options);
+  return runWithOpenAi(options);
 }

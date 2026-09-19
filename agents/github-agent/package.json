@@ -1,7 +1,7 @@
 {
   "name": "github-agent",
   "version": "0.1.0",
-  "description": "Agent that talks to GitHub via the GitHub remote MCP server, routed through either the OpenAI or Claude remote MCP bridge depending on user preference. Ships an AG-UI protocol server plus a browser chat UI for end users.",
+  "description": "Agent that talks to GitHub via the GitHub remote MCP server, routed through the OpenAI, Claude, or DeepSeek remote MCP bridge depending on user preference. Ships an AG-UI protocol server plus a browser chat UI for end users.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -18,6 +18,7 @@
   "dependencies": {
     "openai-remote-mcp-bridge": "*",
     "claude-remote-mcp-bridge": "*",
+    "deepseek-remote-mcp-bridge": "*",
     "openai": "^4.68.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "@ag-ui/core": "^1.0.0",

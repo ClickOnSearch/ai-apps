@@ -5,8 +5,10 @@ tools exposed by one or more **remote** MCP servers.
 
 ## How it works
 
-1. `McpManager` connects to each remote MCP server listed in `mcp.config.json`
-   (Streamable HTTP or SSE transport) and lists its tools.
+1. `McpManager` connects to each remote MCP server listed in the configured
+   `mcp.config.json` (shared at the repo root by default — see
+   [Config](#config) — or a bridge-local file) via Streamable HTTP or SSE
+   transport, and lists its tools.
 2. Each MCP tool's JSON Schema is exposed to OpenAI as a `function` tool,
    namespaced as `<serverName>__<toolName>` to avoid collisions across servers.
 3. `runAgent` drives the standard OpenAI tool-calling loop: send messages +
@@ -26,8 +28,15 @@ OpenAI model --tool_calls--> McpManager --MCP protocol--> remote MCP server
 ```bash
 cd bridges/openai-remote-mcp-bridge
 npm install
-cp .env.example .env            # fill in OPENAI_API_KEY, any MCP tokens
-cp mcp.config.example.json mcp.config.json   # point at your remote MCP server(s)
+cp .env.example .env            # fill in OPENAI_API_KEY
+```
+
+MCP servers are configured once, shared across every bridge in this repo —
+see [Config](#config). If the shared config doesn't exist yet:
+
+```bash
+cd ../..
+cp mcp.config.example.json mcp.config.json   # point at your remote MCP server(s), then fill in tokens
 ```
 
 ## Run
@@ -45,16 +54,17 @@ npm start -- "your prompt here"
 
 ## Config
 
-`mcp.config.json`:
+`../../mcp.config.json` (repo root) — shared by every bridge in this repo,
+pointed at via `MCP_CONFIG_PATH` in `.env`:
 
 ```json
 {
   "servers": [
     {
-      "name": "example",
-      "url": "https://example.com/mcp",
+      "name": "Github",
+      "url": "https://api.githubcopilot.com/mcp/",
       "transport": "http",
-      "headers": { "Authorization": "Bearer ${EXAMPLE_MCP_TOKEN}" }
+      "headers": { "Authorization": "Bearer ${GITHUB_TOKEN}" }
     }
   ]
 }
@@ -63,6 +73,10 @@ npm start -- "your prompt here"
 - `transport` is `"http"` (Streamable HTTP, the current MCP standard) or
   `"sse"` for legacy servers.
 - Header values support `${ENV_VAR}` interpolation, resolved from `.env`.
+- Want this bridge to use a different set of MCP servers than the others?
+  Point `MCP_CONFIG_PATH` at its own file instead, e.g.
+  `MCP_CONFIG_PATH=./mcp.config.json` plus a local
+  `cp ../../mcp.config.example.json mcp.config.json`.
 
 ## Using it as a library
 
@@ -73,7 +87,7 @@ import { runAgent } from "./src/agent.js";
 import { loadMcpConfig } from "./src/config.js";
 
 const mcp = new McpManager();
-await mcp.connectAll((await loadMcpConfig("./mcp.config.json")).servers);
+await mcp.connectAll((await loadMcpConfig("../../mcp.config.json")).servers);
 
 const answer = await runAgent({
   openai: new OpenAI({ apiKey: process.env.OPENAI_API_KEY! }),

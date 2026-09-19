@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { createServer } from "./server.js";
-import type { Provider } from "./providers.js";
+import { isProvider, PROVIDERS, type Provider } from "./providers.js";
 
 const DEFAULT_GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
 
 function resolveDefaultProvider(): Provider {
   const fromEnv = process.env.PROVIDER;
-  if (fromEnv === "openai" || fromEnv === "claude") return fromEnv;
+  if (isProvider(fromEnv)) return fromEnv;
   if (fromEnv) {
-    throw new Error(`PROVIDER must be "openai" or "claude", got "${fromEnv}"`);
+    throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
   return "openai";
 }
