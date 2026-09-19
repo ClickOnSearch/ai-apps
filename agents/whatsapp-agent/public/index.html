@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>GitHub Agent</title>
+<title>WhatsApp Assistant</title>
 <style>
   :root {
     color-scheme: light dark;
@@ -12,7 +12,7 @@
     --border: #232833;
     --text: #e6e9ef;
     --muted: #8b93a3;
-    --accent: #5b8cff;
+    --accent: #25d366;
     --user-bubble: #1f6feb22;
     --assistant-bubble: #171b24;
     --tool-bubble: #1a2a1f;
@@ -107,7 +107,7 @@
   }
   button {
     background: var(--accent);
-    color: white;
+    color: #06210f;
     border: none;
     border-radius: 8px;
     padding: 0 18px;
@@ -121,8 +121,8 @@
 <body>
   <header>
     <div>
-      <h1>GitHub Agent</h1>
-      <div class="sub">talks to GitHub over its remote MCP server, via an AG-UI protocol stream</div>
+      <h1>WhatsApp assistant</h1>
+      <div class="sub">talks to your linked WhatsApp account over its MCP server, via an AG-UI protocol stream</div>
     </div>
     <select id="provider">
       <option value="openai">OpenAI</option>
@@ -135,7 +135,7 @@
 
   <footer>
     <form id="form">
-      <textarea id="input" placeholder="Ask about your repos, PRs, issues..." rows="1"></textarea>
+      <textarea id="input" placeholder="Ask it to check messages, send one, or look someone up..." rows="1"></textarea>
       <button id="send" type="submit">Send</button>
     </form>
   </footer>

@@ -36,10 +36,13 @@ jobs:
       - name: Build all workspaces
         run: npm run build
 
-      # Published in dependency order: github-agent depends on the three
-      # bridges at a real semver range, so they must exist on the registry
-      # before it does. Each package is skipped if that exact name@version
-      # is already published, so re-running this workflow after a partial
+      # Published in dependency order: github-agent and whatsapp-agent both
+      # depend on the three bridges at a real semver range, so the bridges
+      # must exist on the registry first. whatsapp-mcp-server has no
+      # @clickonsearch dependencies of its own (it's called over HTTP at
+      # runtime, not imported), so it can publish any time after the
+      # bridges. Each package is skipped if that exact name@version is
+      # already published, so re-running this workflow after a partial
       # failure (or after bumping only one package) is safe.
       - name: Publish packages
         env:
@@ -52,7 +55,9 @@ jobs:
             "bridges/openai-remote-mcp-bridge"
             "bridges/claude-remote-mcp-bridge"
             "bridges/deepseek-remote-mcp-bridge"
+            "mcp-servers/whatsapp-mcp-server"
             "agents/github-agent"
+            "agents/whatsapp-agent"
           )
 
           for pkg_dir in "${packages[@]}"; do
