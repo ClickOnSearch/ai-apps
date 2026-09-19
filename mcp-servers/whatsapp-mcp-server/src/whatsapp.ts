@@ -143,32 +143,52 @@ export class WhatsAppConnection extends EventEmitter {
       }
     });
 
+    // Live messages: record AND emit, so whatsapp-agent's listener reacts to them.
     socket.ev.on("messages.upsert", ({ messages, type }) => {
       if (type !== "notify" && type !== "append") return;
-
       for (const message of messages) {
-        const chatId = message.key.remoteJid;
-        const text = extractText(message);
-        if (!chatId || !text) continue;
-
-        if (message.key.id && this.ownMessageIds.has(message.key.id)) {
-          this.ownMessageIds.delete(message.key.id);
-          continue;
-        }
-
-        const stored: StoredMessage = {
-          chatId,
-          fromMe: Boolean(message.key.fromMe),
-          isSelfChat: this.isSelfChat(chatId),
-          senderName: message.pushName ?? undefined,
-          text,
-          timestamp: extractTimestamp(message),
-        };
-
-        this.store.recordMessage(stored);
-        this.emit("message", stored);
+        const stored = this.recordMessage(message);
+        if (stored) this.emit("message", stored);
       }
     });
+
+    // One-time backfill Baileys sends right after connecting: without this,
+    // the store starts empty on every restart and list_chats/
+    // get_recent_messages only ever see activity that happens to arrive
+    // while the server is running. Recorded but never emitted — these are
+    // old messages, not new instructions for whatsapp-agent to act on.
+    socket.ev.on("messaging-history.set", ({ messages, contacts }) => {
+      for (const contact of contacts) {
+        this.store.recordContact(contact.id, contact.name ?? contact.notify);
+      }
+      for (const message of messages) {
+        this.recordMessage(message);
+      }
+    });
+  }
+
+  /** Extracts, dedupes against our own sends, and stores one incoming message. Returns it if it was actually stored. */
+  private recordMessage(message: WAMessage): StoredMessage | undefined {
+    const chatId = message.key.remoteJid;
+    const text = extractText(message);
+    if (!chatId || !text) return undefined;
+
+    if (message.key.id && this.ownMessageIds.has(message.key.id)) {
+      this.ownMessageIds.delete(message.key.id);
+      return undefined;
+    }
+
+    const stored: StoredMessage = {
+      chatId,
+      fromMe: Boolean(message.key.fromMe),
+      isSelfChat: this.isSelfChat(chatId),
+      senderName: message.pushName ?? undefined,
+      text,
+      timestamp: extractTimestamp(message),
+    };
+
+    this.store.recordMessage(stored);
+    return stored;
   }
 
   async sendMessage(to: string, text: string): Promise<void> {

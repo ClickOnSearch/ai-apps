@@ -115,5 +115,7 @@ time.
 - Only your own "Message yourself" chat triggers the WhatsApp-mode
   assistant. Any other incoming message is ignored by design, so it can't
   be triggered by someone messaging you.
-- `whatsapp-mcp-server`'s chat/message recall only covers activity seen
-  since it started — it has no history from before that.
+- `whatsapp-mcp-server`'s chat/message recall is in-memory only (not
+  persisted across restarts) and capped at the last 200 messages per chat —
+  it does get real history via WhatsApp's own backfill-on-connect, just not
+  unbounded history.

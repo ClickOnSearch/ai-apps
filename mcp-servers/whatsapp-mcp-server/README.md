@@ -62,8 +62,8 @@ Once connected:
 | Tool                  | Args                          | Notes                                          |
 | ---------------------- | ------------------------------ | ----------------------------------------------- |
 | `send_message`         | `to`, `text`                    | `to` accepts a phone number or a raw JID        |
-| `list_chats`           | —                               | Chats seen since the server started, not history from before it started |
-| `get_recent_messages`  | `chat`, `limit` (default 20)   | In-memory only, capped at the last 200/chat     |
+| `list_chats`           | —                               | Includes history Baileys backfills on connect, plus anything live since |
+| `get_recent_messages`  | `chat`, `limit` (default 20)   | In-memory only, capped at the last 200/chat — how far back that reaches depends on how much history WhatsApp backfilled on connect |
 | `search_contacts`      | `query`                        | Matches by name or number substring             |
 
 ## Using it as a library

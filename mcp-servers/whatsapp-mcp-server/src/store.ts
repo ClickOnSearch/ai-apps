@@ -14,9 +14,11 @@ export interface StoredContact {
 }
 
 /**
- * In-memory only: Baileys doesn't persist chat/message history itself, and
- * this server only needs enough recall for the agent to answer "what did
- * they say" / "who is X" about activity seen since it started.
+ * In-memory only, not persisted across restarts. Populated both from
+ * Baileys' one-time history backfill on connect (see whatsapp.ts's
+ * "messaging-history.set" handler) and from live messages afterward, so
+ * this has enough recall for the agent to answer "what did they say" /
+ * "who is X" without needing its own database.
  */
 export class WhatsAppStore {
   private messagesByChat = new Map<string, StoredMessage[]>();

@@ -26,7 +26,7 @@ function buildMcpServer(whatsapp: WhatsAppConnection): McpServer {
 
   server.registerTool(
     "list_chats",
-    { description: "List WhatsApp chats seen since this server started", inputSchema: {} },
+    { description: "List known WhatsApp chats, including recent history synced on connect", inputSchema: {} },
     async () => {
       const chats = whatsapp.store.listChats();
       return { content: [{ type: "text" as const, text: JSON.stringify(chats, null, 2) }] };
