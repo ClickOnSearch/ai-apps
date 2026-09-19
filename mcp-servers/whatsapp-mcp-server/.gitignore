@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+
+# Baileys session credentials — this IS your logged-in WhatsApp session.
+# Never commit it, it's as sensitive as a password.
+whatsapp-auth/

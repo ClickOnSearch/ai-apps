@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "bridges/*",
+    "mcp-servers/*",
     "agents/*"
   ],
   "scripts": {
