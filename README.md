@@ -1,4 +1,4 @@
-# urav-ai-apps
+# ai-apps
 
 An npm workspaces monorepo (`bridges/*`, `agents/*`) for connecting model
 providers to remote MCP servers.

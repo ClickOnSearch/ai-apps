@@ -1,4 +1,4 @@
-import type { McpServerConfig } from "openai-remote-mcp-bridge";
+import type { McpServerConfig } from "@clickonsearch/openai-remote-mcp-bridge";
 
 export type Provider = "openai" | "claude" | "deepseek";
 
@@ -37,7 +37,7 @@ export interface RunGithubAgentOptions {
 }
 
 async function runWithOpenAi(options: RunGithubAgentOptions): Promise<string> {
-  const { McpManager, runAgent } = await import("openai-remote-mcp-bridge");
+  const { McpManager, runAgent } = await import("@clickonsearch/openai-remote-mcp-bridge");
   const { default: OpenAI } = await import("openai");
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -66,7 +66,7 @@ async function runWithOpenAi(options: RunGithubAgentOptions): Promise<string> {
 }
 
 async function runWithClaude(options: RunGithubAgentOptions): Promise<string> {
-  const { McpManager, runAgent } = await import("claude-remote-mcp-bridge");
+  const { McpManager, runAgent } = await import("@clickonsearch/claude-remote-mcp-bridge");
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -95,7 +95,7 @@ async function runWithClaude(options: RunGithubAgentOptions): Promise<string> {
 }
 
 async function runWithDeepSeek(options: RunGithubAgentOptions): Promise<string> {
-  const { McpManager, runAgent } = await import("deepseek-remote-mcp-bridge");
+  const { McpManager, runAgent } = await import("@clickonsearch/deepseek-remote-mcp-bridge");
   const { default: OpenAI } = await import("openai");
 
   const apiKey = process.env.DEEPSEEK_API_KEY;

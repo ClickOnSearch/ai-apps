@@ -1,5 +1,5 @@
 {
-  "name": "urav-ai-apps",
+  "name": "ai-apps",
   "private": true,
   "workspaces": [
     "bridges/*",
