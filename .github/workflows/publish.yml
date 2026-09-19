@@ -1,0 +1,77 @@
+name: Publish npm packages
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (build + npm publish --dry-run, nothing actually published)"
+        type: boolean
+        default: true
+
+concurrency:
+  group: publish-npm
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # for npm provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build all workspaces
+        run: npm run build
+
+      # Published in dependency order: github-agent depends on the three
+      # bridges at a real semver range, so they must exist on the registry
+      # before it does. Each package is skipped if that exact name@version
+      # is already published, so re-running this workflow after a partial
+      # failure (or after bumping only one package) is safe.
+      - name: Publish packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+
+          packages=(
+            "bridges/openai-remote-mcp-bridge"
+            "bridges/claude-remote-mcp-bridge"
+            "bridges/deepseek-remote-mcp-bridge"
+            "agents/github-agent"
+          )
+
+          for pkg_dir in "${packages[@]}"; do
+            (
+              cd "$pkg_dir"
+              name=$(node -p "require('./package.json').name")
+              version=$(node -p "require('./package.json').version")
+
+              if npm view "${name}@${version}" version >/dev/null 2>&1; then
+                echo "::notice::${name}@${version} is already published, skipping"
+                exit 0
+              fi
+
+              if [ "$DRY_RUN" = "true" ]; then
+                echo "::notice::Dry run: would publish ${name}@${version}"
+                npm publish --dry-run
+              else
+                echo "::notice::Publishing ${name}@${version}"
+                npm publish --provenance
+              fi
+            )
+          done

@@ -53,7 +53,7 @@ This package depends on its sibling bridges via npm workspaces, so install
 and build from the repo root once:
 
 ```bash
-cd /Users/gauravbansal74/projects/urav-ai-apps
+cd <repo root>
 npm install
 npm run build   # builds every workspace (agents/* and bridges/*), including the bridges this depends on
 ```

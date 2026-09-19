@@ -1,8 +1,21 @@
 {
-  "name": "github-agent",
+  "name": "@clickonsearch/github-agent",
   "version": "0.1.0",
   "description": "Agent that talks to GitHub via the GitHub remote MCP server, routed through the OpenAI, Claude, or DeepSeek remote MCP bridge depending on user preference. Ships an AG-UI protocol server plus a browser chat UI for end users.",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClickOnSearch/ai-apps.git",
+    "directory": "agents/github-agent"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "public"
+  ],
   "main": "dist/index.js",
   "bin": {
     "github-agent": "dist/cli.js",
@@ -16,9 +29,9 @@
     "dev:serve": "tsx src/server-cli.ts"
   },
   "dependencies": {
-    "openai-remote-mcp-bridge": "*",
-    "claude-remote-mcp-bridge": "*",
-    "deepseek-remote-mcp-bridge": "*",
+    "@clickonsearch/openai-remote-mcp-bridge": "^0.1.0",
+    "@clickonsearch/claude-remote-mcp-bridge": "^0.1.0",
+    "@clickonsearch/deepseek-remote-mcp-bridge": "^0.1.0",
     "openai": "^4.68.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "@ag-ui/core": "^1.0.0",

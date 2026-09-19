@@ -1,8 +1,20 @@
 {
-  "name": "openai-remote-mcp-bridge",
+  "name": "@clickonsearch/openai-remote-mcp-bridge",
   "version": "0.1.0",
   "description": "Bridge that lets an OpenAI agent (Chat Completions tool-calling) discover and call tools exposed by one or more remote MCP servers.",
   "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClickOnSearch/ai-apps.git",
+    "directory": "bridges/openai-remote-mcp-bridge"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
