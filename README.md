@@ -9,14 +9,19 @@ connecting model providers to remote MCP servers.
   [`claude-remote-mcp-bridge`](bridges/claude-remote-mcp-bridge),
   [`deepseek-remote-mcp-bridge`](bridges/deepseek-remote-mcp-bridge).
 - **`mcp-servers/`** — MCP servers this repo owns and runs itself (as
-  opposed to third-party ones like GitHub's): currently
-  [`whatsapp-mcp-server`](mcp-servers/whatsapp-mcp-server), which connects
-  to a personal WhatsApp account via Baileys.
+  opposed to third-party ones like GitHub's):
+  [`whatsapp-mcp-server`](mcp-servers/whatsapp-mcp-server) connects to a
+  personal WhatsApp account via Baileys;
+  [`linkedin-mcp-server`](mcp-servers/linkedin-mcp-server) connects to a
+  personal LinkedIn account via OAuth2 (read your profile, publish posts —
+  LinkedIn's public API doesn't allow much more than that).
 - **`agents/`** — purpose-built agents on top of one or more bridges:
   [`github-agent`](agents/github-agent) talks to GitHub via its remote MCP
-  server, and [`whatsapp-agent`](agents/whatsapp-agent) is a personal
-  assistant driven by messaging yourself on WhatsApp — both let the caller
-  pick which bridge/provider to route through.
+  server, [`whatsapp-agent`](agents/whatsapp-agent) is a personal assistant
+  driven by messaging yourself on WhatsApp, and
+  [`linkedin-agent`](agents/linkedin-agent) reads your LinkedIn profile and
+  posts on your behalf — all three let the caller pick which bridge/provider
+  to route through.
 
 ## Shared MCP config
 
@@ -34,10 +39,10 @@ to point here. A bridge that needs a different set of servers than the
 others can override `MCP_CONFIG_PATH` to point at its own local file
 instead — see each bridge's README.
 
-`agents/github-agent` and `agents/whatsapp-agent` don't use this file at
-all: each builds its one MCP server's config in code (from `GITHUB_TOKEN`,
-or from `WHATSAPP_MCP_URL` pointing at the local `whatsapp-mcp-server`), so
-there's nothing to keep in sync there.
+None of the `agents/*` packages use this file: each builds its one MCP
+server's config in code (from `GITHUB_TOKEN`, or from `WHATSAPP_MCP_URL` /
+`LINKEDIN_MCP_URL` pointing at the local server), so there's nothing to keep
+in sync there.
 
 ## Setup
 

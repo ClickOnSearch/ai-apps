@@ -1,0 +1,53 @@
+{
+  "name": "@clickonsearch/linkedin-agent",
+  "version": "0.1.0",
+  "description": "Agent for a personal LinkedIn account (read your profile, publish posts) via linkedin-mcp-server, routed through OpenAI, Claude, or DeepSeek depending on preference. Ships an AG-UI protocol server plus a browser chat UI.",
+  "type": "module",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ClickOnSearch/ai-apps.git",
+    "directory": "agents/linkedin-agent"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "public"
+  ],
+  "main": "dist/index.js",
+  "bin": {
+    "linkedin-agent": "dist/cli.js",
+    "linkedin-agent-serve": "dist/server-cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/cli.js",
+    "dev": "tsx src/cli.ts",
+    "serve": "node dist/server-cli.js",
+    "dev:serve": "tsx src/server-cli.ts"
+  },
+  "dependencies": {
+    "@clickonsearch/openai-remote-mcp-bridge": "^0.1.0",
+    "@clickonsearch/claude-remote-mcp-bridge": "^0.1.0",
+    "@clickonsearch/deepseek-remote-mcp-bridge": "^0.1.0",
+    "openai": "^4.68.0",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@ag-ui/core": "^1.0.0",
+    "@ag-ui/encoder": "^1.0.0",
+    "express": "^4.21.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "tsx": "^4.19.1",
+    "@types/node": "^22.7.5",
+    "@types/express": "^4.17.21",
+    "@types/cors": "^2.8.17"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
