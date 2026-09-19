@@ -1,0 +1,11 @@
+{
+  "name": "urav-ai-apps",
+  "private": true,
+  "workspaces": [
+    "bridges/*",
+    "agents/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present"
+  }
+}

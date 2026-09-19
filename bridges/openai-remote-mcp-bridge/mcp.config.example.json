@@ -1,0 +1,12 @@
+{
+  "servers": [
+    {
+      "name": "Github",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_TOKEN}"
+      }
+    }
+  ]
+}

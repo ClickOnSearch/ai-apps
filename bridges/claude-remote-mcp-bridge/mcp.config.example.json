@@ -1,0 +1,12 @@
+{
+  "servers": [
+    {
+      "name": "example",
+      "url": "https://example.com/mcp",
+      "transport": "http",
+      "headers": {
+        "Authorization": "Bearer ${EXAMPLE_MCP_TOKEN}"
+      }
+    }
+  ]
+}
