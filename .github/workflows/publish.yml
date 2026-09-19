@@ -36,14 +36,15 @@ jobs:
       - name: Build all workspaces
         run: npm run build
 
-      # Published in dependency order: github-agent and whatsapp-agent both
-      # depend on the three bridges at a real semver range, so the bridges
-      # must exist on the registry first. whatsapp-mcp-server has no
-      # @clickonsearch dependencies of its own (it's called over HTTP at
-      # runtime, not imported), so it can publish any time after the
-      # bridges. Each package is skipped if that exact name@version is
-      # already published, so re-running this workflow after a partial
-      # failure (or after bumping only one package) is safe.
+      # Published in dependency order: github-agent, whatsapp-agent, and
+      # linkedin-agent all depend on the three bridges at a real semver
+      # range, so the bridges must exist on the registry first.
+      # whatsapp-mcp-server and linkedin-mcp-server have no @clickonsearch
+      # dependencies of their own (they're called over HTTP at runtime, not
+      # imported), so they can publish any time after the bridges. Each
+      # package is skipped if that exact name@version is already
+      # published, so re-running this workflow after a partial failure (or
+      # after bumping only one package) is safe.
       - name: Publish packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -56,8 +57,10 @@ jobs:
             "bridges/claude-remote-mcp-bridge"
             "bridges/deepseek-remote-mcp-bridge"
             "mcp-servers/whatsapp-mcp-server"
+            "mcp-servers/linkedin-mcp-server"
             "agents/github-agent"
             "agents/whatsapp-agent"
+            "agents/linkedin-agent"
           )
 
           for pkg_dir in "${packages[@]}"; do
