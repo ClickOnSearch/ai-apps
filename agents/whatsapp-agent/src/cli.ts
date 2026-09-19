@@ -24,7 +24,7 @@ async function main(): Promise<void> {
 
   const mcpServerUrl = process.env.WHATSAPP_MCP_URL ?? "http://localhost:4100";
 
-  console.error(`whatsapp-agent starting (provider: ${provider}, whatsapp-mcp-server: ${mcpServerUrl})`);
+  console.error(`whatsapp-agent starting (initial provider: ${provider}, whatsapp-mcp-server: ${mcpServerUrl})`);
 
   await startListener({
     mcpServerUrl,

@@ -1,6 +1,8 @@
 export interface StoredMessage {
   chatId: string;
   fromMe: boolean;
+  /** True when `chatId` is the user's own "Message yourself" chat. */
+  isSelfChat: boolean;
   senderName?: string;
   text: string;
   timestamp: number;

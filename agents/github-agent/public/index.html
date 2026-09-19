@@ -152,6 +152,17 @@
   /** @type {{id: string, role: string, content: string}[]} */
   const messages = [];
 
+  // Reflect the server's actual configured default (PROVIDER env var)
+  // instead of always showing the dropdown's first option.
+  fetch("/health")
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.defaultProvider && providerSelect.querySelector(`option[value="${data.defaultProvider}"]`)) {
+        providerSelect.value = data.defaultProvider;
+      }
+    })
+    .catch(() => {});
+
   function bubble(className, text) {
     const el = document.createElement("div");
     el.className = "bubble " + className;

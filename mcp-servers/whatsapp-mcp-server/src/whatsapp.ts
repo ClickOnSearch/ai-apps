@@ -49,8 +49,29 @@ export class WhatsAppConnection extends EventEmitter {
 
   private socket?: WASocket;
   private selfJid?: string;
+  /**
+   * WhatsApp is rolling out privacy-preserving "LID" identities
+   * (`@lid` JIDs) alongside the classic phone-number JID
+   * (`@s.whatsapp.net`). On accounts where this has rolled out, your own
+   * "Message yourself" chat's `remoteJid` is the `@lid` form even though
+   * `socket.user.id` still reports the phone-number form — the two will
+   * never string-match, so both are tracked here and `isSelfChat` checks
+   * against either.
+   */
+  private selfLid?: string;
   private readonly authFolder: string;
   private readonly logger = pino({ level: process.env.BAILEYS_LOG_LEVEL ?? "silent" });
+
+  /**
+   * IDs of messages this connection sent via `sendMessage`. WhatsApp's
+   * multi-device sync echoes every sent message back through
+   * `messages.upsert` — including to a self-chat — with `fromMe: true`,
+   * indistinguishable from a message the human actually typed unless we
+   * track our own sends. Without this, any consumer that reacts to
+   * `fromMe` self-chat messages (like whatsapp-agent's instruction
+   * listener) will re-trigger on its own replies forever.
+   */
+  private readonly ownMessageIds = new Set<string>();
 
   constructor(authFolder: string) {
     super();
@@ -63,6 +84,13 @@ export class WhatsAppConnection extends EventEmitter {
 
   get selfId(): string | undefined {
     return this.selfJid;
+  }
+
+  /** True when `chatId` is your own "Message yourself" chat, in either JID form. */
+  isSelfChat(chatId: string): boolean {
+    if (!this.selfJid && !this.selfLid) return false;
+    const normalized = jidNormalizedUser(chatId);
+    return normalized === this.selfJid || normalized === this.selfLid;
   }
 
   async start(): Promise<void> {
@@ -89,12 +117,14 @@ export class WhatsAppConnection extends EventEmitter {
 
       if (connection === "open") {
         this.selfJid = socket.user ? jidNormalizedUser(socket.user.id) : undefined;
-        console.error(`WhatsApp connected as ${this.selfJid}`);
+        this.selfLid = socket.user?.lid ? jidNormalizedUser(socket.user.lid) : undefined;
+        console.error(`WhatsApp connected as ${this.selfJid}${this.selfLid ? ` (lid: ${this.selfLid})` : ""}`);
         if (this.selfJid) this.emit("ready", this.selfJid);
       }
 
       if (connection === "close") {
         this.selfJid = undefined;
+        this.selfLid = undefined;
         const statusCode = (lastDisconnect?.error as { output?: { statusCode?: number } } | undefined)?.output
           ?.statusCode;
         const loggedOut = statusCode === DisconnectReason.loggedOut;
@@ -121,9 +151,15 @@ export class WhatsAppConnection extends EventEmitter {
         const text = extractText(message);
         if (!chatId || !text) continue;
 
+        if (message.key.id && this.ownMessageIds.has(message.key.id)) {
+          this.ownMessageIds.delete(message.key.id);
+          continue;
+        }
+
         const stored: StoredMessage = {
           chatId,
           fromMe: Boolean(message.key.fromMe),
+          isSelfChat: this.isSelfChat(chatId),
           senderName: message.pushName ?? undefined,
           text,
           timestamp: extractTimestamp(message),
@@ -139,6 +175,13 @@ export class WhatsAppConnection extends EventEmitter {
     if (!this.socket) {
       throw new Error("WhatsApp is not connected yet");
     }
-    await this.socket.sendMessage(normalizeJid(to), { text });
+    const sent = await this.socket.sendMessage(normalizeJid(to), { text });
+    const id = sent?.key?.id;
+    if (id) {
+      this.ownMessageIds.add(id);
+      // The echo normally arrives within a second or two; this is just a
+      // bound so an echo that never comes doesn't leak memory forever.
+      setTimeout(() => this.ownMessageIds.delete(id), 60_000).unref();
+    }
   }
 }
