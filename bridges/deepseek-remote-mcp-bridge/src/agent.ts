@@ -2,12 +2,23 @@ import type OpenAI from "openai";
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions.js";
 import type { McpManager } from "./mcpManager.js";
 
+/** One earlier turn of the conversation, as plain text. */
+export interface HistoryMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
 export interface RunAgentOptions {
   /** An `openai` SDK client instance pointed at DeepSeek's OpenAI-compatible endpoint. */
   deepseek: OpenAI;
   model: string;
   systemPrompt?: string;
   userPrompt: string;
+  /**
+   * Earlier turns of this conversation, oldest first. They are sent before `userPrompt`
+   * so the model can follow the conversation. Tool calls from earlier turns are not replayed.
+   */
+  history?: HistoryMessage[];
   mcp: McpManager;
   maxTurns?: number;
   onToolCall?: (name: string, args: unknown, toolCallId: string) => void;
@@ -27,6 +38,7 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
     model,
     systemPrompt,
     userPrompt,
+    history = [],
     mcp,
     maxTurns = 8,
     onToolCall,
@@ -37,6 +49,7 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
   const tools = mcp.getDeepSeekTools();
   const messages: ChatCompletionMessageParam[] = [];
   if (systemPrompt) messages.push({ role: "system", content: systemPrompt });
+  for (const m of history) messages.push({ role: m.role, content: m.content });
   messages.push({ role: "user", content: userPrompt });
 
   for (let turn = 0; turn < maxTurns; turn++) {
