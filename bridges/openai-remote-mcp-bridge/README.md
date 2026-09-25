@@ -98,3 +98,23 @@ const answer = await runAgent({
 
 await mcp.closeAll();
 ```
+
+### Conversation history
+
+Pass earlier turns as `history` (oldest first) to give the model the context
+of an ongoing conversation. They are sent before `userPrompt`:
+
+```ts
+const answer = await runAgent({
+  // ...client, model, mcp as above
+  history: [
+    { role: "user", content: "Call me Ash" },
+    { role: "assistant", content: "Sure, Ash!" },
+  ],
+  userPrompt: "What's my name?",
+});
+```
+
+History is plain text: tool calls and results from earlier turns are not
+replayed. Keep it bounded (for example, the last 20 messages) to control cost.
+

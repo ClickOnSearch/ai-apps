@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/deepseek-remote-mcp-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bridge that lets a DeepSeek agent (OpenAI-compatible Chat Completions tool-calling) discover and call tools exposed by one or more remote MCP servers.",
   "type": "module",
   "license": "MIT",

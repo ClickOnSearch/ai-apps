@@ -29,9 +29,9 @@
     "dev:serve": "tsx src/server-cli.ts"
   },
   "dependencies": {
-    "@clickonsearch/openai-remote-mcp-bridge": "^0.1.0",
-    "@clickonsearch/claude-remote-mcp-bridge": "^0.1.0",
-    "@clickonsearch/deepseek-remote-mcp-bridge": "^0.1.0",
+    "@clickonsearch/openai-remote-mcp-bridge": "^0.2.0",
+    "@clickonsearch/claude-remote-mcp-bridge": "^0.2.0",
+    "@clickonsearch/deepseek-remote-mcp-bridge": "^0.2.0",
     "openai": "^4.68.0",
     "@anthropic-ai/sdk": "^0.32.1",
     "@ag-ui/core": "^1.0.0",
