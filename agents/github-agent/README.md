@@ -47,7 +47,7 @@ your provider from the dropdown at the top.
 ## Skills
 
 Add `--skill code-review` (or any other skill from
-[`agent-skills`](../../shared/agent-skills)) to change how the agent
+[`agent-skills`](../../skills/agent-skills)) to change how the agent
 reasons, without changing what it can do:
 
 ```bash

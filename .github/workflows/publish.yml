@@ -59,7 +59,7 @@ jobs:
             "bridges/deepseek-remote-mcp-bridge"
             "mcp-servers/whatsapp-mcp-server"
             "mcp-servers/linkedin-mcp-server"
-            "shared/agent-skills"
+            "skills/agent-skills"
             "agents/github-agent"
             "agents/whatsapp-agent"
             "agents/linkedin-agent"

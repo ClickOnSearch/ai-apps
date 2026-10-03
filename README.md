@@ -30,9 +30,9 @@ npm run build
 - **`bridges/`** — one package per AI model (OpenAI, Claude, DeepSeek) that
   lets that model call tools. The agents use these; you don't need to touch
   them directly.
-- **`shared/`** — small libraries shared across agents, like
-  [`agent-skills`](shared/agent-skills) (reusable instructions you can turn
-  on with `--skill <name>`).
+- **`skills/`** — reusable instruction sets agents can turn on, like
+  [`agent-skills`](skills/agent-skills) (`--skill <name>`, or usable
+  outside this repo entirely via MCP or a plain markdown export).
 
 Each package keeps its own `CHANGELOG.md`, with one entry per npm version
 (e.g. [`agents/github-agent/CHANGELOG.md`](agents/github-agent/CHANGELOG.md)).

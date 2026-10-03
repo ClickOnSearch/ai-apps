@@ -16,3 +16,10 @@ Not yet published to npm.
 - `code-review` skill — reviews a diff or code change against a standard
   checklist (correctness, security, simplicity, test coverage) and reports
   concrete findings.
+- `agent-skills-mcp` bin — exposes every skill as an MCP "prompt" over
+  stdio, so external MCP clients (GitHub Copilot, Cursor, Claude Desktop,
+  Windsurf, ...) can list and fetch skills directly without importing this
+  package as a library.
+- `agent-skills` bin — `list` and `export <name> [file]` subcommands, for
+  tools that only read plain instruction files (e.g.
+  `.github/copilot-instructions.md`, `CLAUDE.md`, `.cursor/rules/*.mdc`).
