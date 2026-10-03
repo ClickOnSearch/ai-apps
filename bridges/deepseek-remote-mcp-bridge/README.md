@@ -6,41 +6,7 @@ this README is for using the bridge on its own.
 
 ## Setup
 
-```bash
-cd bridges/deepseek-remote-mcp-bridge
-npm install
-cp .env.example .env            # fill in DEEPSEEK_API_KEY
-```
-
-This bridge reads its list of MCP servers from a shared config file at the
-repo root. If it doesn't exist yet:
-
-```bash
-cd ../..
-cp mcp.config.example.json mcp.config.json
-# edit it to point at your MCP server(s), and fill in any tokens it references
-```
-
-## Run
-
-```bash
-npm run dev -- "your prompt here"
-```
-
-or build and run the compiled CLI:
-
-```bash
-npm run build
-npm start -- "your prompt here"
-```
-
-`DEEPSEEK_MODEL` defaults to `deepseek-chat`. `deepseek-reasoner` has
-historically had limited or no tool-calling support — check DeepSeek's
-docs before switching to it.
-
-## Config reference
-
-`../../mcp.config.json` (shared across every bridge — see root README):
+Create an `mcp.config.json` in the folder you'll run this from:
 
 ```json
 {
@@ -56,13 +22,36 @@ docs before switching to it.
 ```
 
 - `transport` is `"http"` or `"sse"`.
-- Header values can reference env vars with `${ENV_VAR}`.
-- To use a different set of MCP servers than the other bridges, point
-  `MCP_CONFIG_PATH` in `.env` at your own file instead.
+- Header values can reference env vars with `${ENV_VAR}` (e.g. `GITHUB_TOKEN` above).
+- Point `MCP_CONFIG_PATH` at a different file if you don't want it named `mcp.config.json`.
+
+## Run
+
+```bash
+DEEPSEEK_API_KEY=<your-key> GITHUB_TOKEN=<your-token> \
+  npx @clickonsearch/deepseek-remote-mcp-bridge "your prompt here"
+```
+
+`DEEPSEEK_MODEL` defaults to `deepseek-chat`. `deepseek-reasoner` has
+historically had limited or no tool-calling support — check DeepSeek's
+docs before switching to it.
 
 ---
 
 ## For developers
+
+**Running from source:**
+
+```bash
+cd bridges/deepseek-remote-mcp-bridge
+npm install
+cp .env.example .env            # fill in DEEPSEEK_API_KEY
+cd ../..
+cp mcp.config.example.json mcp.config.json
+# edit it to point at your MCP server(s), and fill in any tokens it references
+cd bridges/deepseek-remote-mcp-bridge
+npm run dev -- "your prompt here"
+```
 
 **How it works:** DeepSeek's API is OpenAI-compatible, so this bridge just
 uses the `openai` SDK pointed at DeepSeek's endpoint instead of a dedicated
@@ -88,7 +77,7 @@ import { runAgent } from "./src/agent.js";
 import { loadMcpConfig } from "./src/config.js";
 
 const mcp = new McpManager();
-await mcp.connectAll((await loadMcpConfig("../../mcp.config.json")).servers);
+await mcp.connectAll((await loadMcpConfig("./mcp.config.json")).servers);
 
 const answer = await runAgent({
   deepseek: new OpenAI({

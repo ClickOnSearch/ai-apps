@@ -11,18 +11,10 @@ README tells you when to start it.
 > cover. Risk is low for normal personal use, but there's a small chance of
 > the account getting flagged.
 
-## Setup
-
-```bash
-cd mcp-servers/whatsapp-mcp-server
-npm install
-cp .env.example .env
-```
-
 ## Run
 
 ```bash
-npm run dev
+npx @clickonsearch/whatsapp-mcp-server
 ```
 
 The first time, it prints a QR code — scan it with your phone: **WhatsApp →
@@ -31,7 +23,8 @@ automatically, no need to scan again (unless you unlink the device from
 your phone).
 
 Once connected, it's listening on `http://localhost:4100` for whatever
-agent you point at it.
+agent you point at it. No environment variables are required to try it —
+everything below has a default.
 
 ## Config reference
 
@@ -53,6 +46,15 @@ agent you point at it.
 ---
 
 ## For developers
+
+**Running from source:**
+
+```bash
+cd mcp-servers/whatsapp-mcp-server
+npm install
+cp .env.example .env
+npm run dev
+```
 
 This runs as a standard MCP server (Streamable HTTP on `/mcp`), so any of
 this repo's bridges can connect to it with no special-casing — it just had

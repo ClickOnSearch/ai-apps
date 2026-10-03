@@ -6,19 +6,12 @@ does the thinking.
 
 ## Quick start
 
-Each agent below is a separate package with its own setup. Pick one and
-follow its README:
+Each agent below is a published npm package you run with `npx` — no
+cloning, no building. Pick one and follow its README for the exact command:
 
 - **[github-agent](agents/github-agent)** — ask about your repos, PRs, and issues.
 - **[whatsapp-agent](agents/whatsapp-agent)** — a personal assistant you talk to over WhatsApp.
 - **[linkedin-agent](agents/linkedin-agent)** — read your LinkedIn profile and post to your feed.
-
-To build everything in this repo first:
-
-```bash
-npm install
-npm run build
-```
 
 ## What's in here
 
@@ -37,14 +30,17 @@ npm run build
 Each package keeps its own `CHANGELOG.md`, with one entry per npm version
 (e.g. [`agents/github-agent/CHANGELOG.md`](agents/github-agent/CHANGELOG.md)).
 
-## Using a bridge directly (advanced)
+---
 
-If you want to experiment with a bridge on its own instead of through an
-agent, each one reads its list of MCP servers from a shared
-`mcp.config.json` at this repo root:
+## Developing in this repo
+
+Working on this repo's own code, not just using the published packages?
+Clone it and build from source:
 
 ```bash
-cp mcp.config.example.json mcp.config.json   # point at your MCP server(s)
+npm install
+npm run build
 ```
 
-See the bridge's own README for details.
+Every package's README has a "For developers" section with the matching
+`npm run dev` commands for running it from source.

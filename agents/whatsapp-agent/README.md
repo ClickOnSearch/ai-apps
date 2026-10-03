@@ -12,50 +12,45 @@ AI model does the thinking — OpenAI, Claude, or DeepSeek.
   a device on your account, same as WhatsApp Web)
 - An API key for at least one of: OpenAI, Anthropic (Claude), DeepSeek
 
-## Setup
+## Use it: over WhatsApp
 
-**1. Start the WhatsApp connection** (keep this running in its own terminal):
+**1. Start the WhatsApp connection** (own terminal, keep it running):
 
 ```bash
-cd mcp-servers/whatsapp-mcp-server
-npm install
-cp .env.example .env
-npm run dev
+npx @clickonsearch/whatsapp-mcp-server
 ```
 
 Scan the QR code it prints with your phone (WhatsApp → Settings → Linked
 devices → Link a device).
 
-**2. Set up this agent** (in a second terminal):
+**2. Start the assistant** (second terminal):
 
 ```bash
-cd agents/whatsapp-agent
-npm install
-cp .env.example .env
-```
-
-Open `.env` and fill in the API key for whichever provider you want to use.
-
-## Use it: over WhatsApp
-
-```bash
-npm run dev
+ANTHROPIC_API_KEY=<your-key> npx @clickonsearch/whatsapp-agent
 ```
 
 Now message **yourself** on WhatsApp ("Message yourself" in your contacts)
 with something like "list my most recent chats" — the reply comes back in
 that same conversation.
 
+Swap in `OPENAI_API_KEY` + `PROVIDER=openai`, or `DEEPSEEK_API_KEY` +
+`PROVIDER=deepseek`, to use a different model.
+
 ## Use it: browser chat
 
 ```bash
-npm run build
-npm run serve
+ANTHROPIC_API_KEY=<your-key> npx -p @clickonsearch/whatsapp-agent whatsapp-agent-serve
 ```
 
 Then open `http://localhost:3100` and start chatting — pick your provider
 from the dropdown. You can run this at the same time as WhatsApp mode; they
 don't conflict.
+
+## Use it: embedded in another tool
+
+The browser chat server speaks the [AG-UI protocol](https://ag-ui.com)
+(`POST /agent`, streaming SSE) — any AG-UI-compatible client can drive it
+as a backend, not just the bundled page.
 
 ## Config reference
 
@@ -86,6 +81,23 @@ don't conflict.
 
 ## For developers
 
+**Running from source:**
+
+```bash
+# terminal 1
+cd mcp-servers/whatsapp-mcp-server
+npm install
+cp .env.example .env
+npm run dev
+
+# terminal 2
+cd agents/whatsapp-agent
+npm install
+cp .env.example .env    # fill in a provider key
+npm run dev              # WhatsApp mode
+npm run serve             # or browser chat
+```
+
 WhatsApp mode is push-driven, not request/response: it subscribes to
 `whatsapp-mcp-server`'s `/events` stream, and any message you send yourself
 becomes a prompt for the same provider tool-calling loop `github-agent`
@@ -93,6 +105,5 @@ uses, with WhatsApp's tools (`send_message`, `list_chats`,
 `get_recent_messages`, `search_contacts`) available. The reply is sent back
 via `send_message` once the model finishes.
 
-The browser chat is an [AG-UI protocol](https://ag-ui.com) server, same
-shape as `github-agent`'s (`POST /agent`, streaming SSE) — any AG-UI
-client can drive it.
+The browser chat is an AG-UI protocol server, same shape as
+`github-agent`'s (`POST /agent`, streaming SSE).

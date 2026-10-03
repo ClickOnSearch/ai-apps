@@ -13,32 +13,26 @@ profile, publish posts. Usually you won't run this directly —
 3. Under **Auth**, add an **Authorized redirect URL**: `http://localhost:3300/callback`.
 4. Copy the app's **Client ID** and **Client Secret**.
 
-**2. Configure this server:**
+**2. Authorize it** (one time — run from a folder you'll reuse in step 3):
 
 ```bash
-cd mcp-servers/linkedin-mcp-server
-npm install
-cp .env.example .env
-# fill in LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET
-```
-
-**3. Authorize it (one time):**
-
-```bash
-npm run dev:authorize
+LINKEDIN_CLIENT_ID=<id> LINKEDIN_CLIENT_SECRET=<secret> \
+  npx -p @clickonsearch/linkedin-mcp-server linkedin-authorize
 ```
 
 This opens a link — sign in, approve, done. It saves a token to
-`linkedin-token.json` so you don't need to do this again.
+`linkedin-token.json` in the current folder, so step 3 needs to run from
+this same folder.
 
 > LinkedIn's access tokens last ~60 days and (for a standard app) don't
-> auto-renew. When yours expires, just run `npm run dev:authorize` again —
+> auto-renew. When yours expires, just re-run the authorize command above —
 > you'll get a clear error telling you to when that happens.
 
 ## Run
 
 ```bash
-npm run dev
+LINKEDIN_CLIENT_ID=<id> LINKEDIN_CLIENT_SECRET=<secret> \
+  npx @clickonsearch/linkedin-mcp-server
 ```
 
 It's now listening on `http://localhost:4300` for whatever agent you point
@@ -62,6 +56,16 @@ doesn't pretend otherwise.
 ---
 
 ## For developers
+
+**Running from source:**
+
+```bash
+cd mcp-servers/linkedin-mcp-server
+npm install
+cp .env.example .env   # fill in LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET
+npm run dev:authorize   # opens a consent link in your browser, one time
+npm run dev
+```
 
 ```ts
 import { TokenManager, LinkedInClient, createServer } from "./src/index.js";
