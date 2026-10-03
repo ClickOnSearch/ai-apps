@@ -39,8 +39,8 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
     userPrompt,
     history = [],
     mcp,
-    maxTurns = 8,
-    maxTokens = 1024,
+    maxTurns = 20,
+    maxTokens = 4096,
     onToolCall,
     onToolResult,
     onAssistantText,
@@ -73,10 +73,17 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
     }
 
     if (response.stop_reason !== "tool_use") {
-      return response.content
+      const text = response.content
         .filter((block) => block.type === "text")
         .map((block) => (block as { text: string }).text)
         .join("\n");
+      if (!text) {
+        throw new Error(
+          `Claude stopped (stop_reason: "${response.stop_reason}") without producing any text. ` +
+            `If this was "max_tokens", the response was cut off mid-generation — try raising maxTokens.`,
+        );
+      }
+      return text;
     }
 
     const toolResults: ToolResultBlockParam[] = [];

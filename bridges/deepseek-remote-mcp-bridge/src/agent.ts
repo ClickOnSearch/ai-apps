@@ -40,7 +40,7 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
     userPrompt,
     history = [],
     mcp,
-    maxTurns = 8,
+    maxTurns = 20,
     onToolCall,
     onToolResult,
     onAssistantText,
@@ -71,7 +71,12 @@ export async function runAgent(options: RunAgentOptions): Promise<string> {
     }
 
     if (!message.tool_calls || message.tool_calls.length === 0) {
-      return message.content ?? "";
+      if (!message.content) {
+        throw new Error(
+          `DeepSeek stopped (finish_reason: "${response.choices[0]?.finish_reason}") without producing any text or tool calls.`,
+        );
+      }
+      return message.content;
     }
 
     for (const toolCall of message.tool_calls) {

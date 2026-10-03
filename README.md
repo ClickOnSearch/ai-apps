@@ -34,6 +34,9 @@ npm run build
   [`agent-skills`](shared/agent-skills) (reusable instructions you can turn
   on with `--skill <name>`).
 
+Each package keeps its own `CHANGELOG.md`, with one entry per npm version
+(e.g. [`agents/github-agent/CHANGELOG.md`](agents/github-agent/CHANGELOG.md)).
+
 ## Using a bridge directly (advanced)
 
 If you want to experiment with a bridge on its own instead of through an
