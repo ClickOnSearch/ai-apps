@@ -77,6 +77,19 @@ npm run dev -- --provider claude "summarize open issues labeled bug in this repo
 npm run dev -- --provider deepseek "what's changed in this repo this week?"
 ```
 
+### Skills
+
+`--skill <name>` layers a reusable instruction set from
+[`@clickonsearch/agent-skills`](../../shared/agent-skills) on top of the
+prompt — same provider/MCP tools, different reasoning behavior:
+
+```bash
+npm run dev -- --skill code-review "review this diff: $(git diff main)"
+```
+
+See that package's README for what `code-review` checks and how to add a
+new skill; any skill registered there works here with no code changes.
+
 or build and run the compiled CLI:
 
 ```bash

@@ -1,7 +1,7 @@
 # ai-apps
 
-An npm workspaces monorepo (`bridges/*`, `mcp-servers/*`, `agents/*`) for
-connecting model providers to remote MCP servers.
+An npm workspaces monorepo (`bridges/*`, `mcp-servers/*`, `shared/*`,
+`agents/*`) for connecting model providers to remote MCP servers.
 
 - **`bridges/`** — one package per model provider, each letting that
   provider's tool-calling loop discover and call tools on remote MCP
@@ -15,13 +15,17 @@ connecting model providers to remote MCP servers.
   [`linkedin-mcp-server`](mcp-servers/linkedin-mcp-server) connects to a
   personal LinkedIn account via OAuth2 (read your profile, publish posts —
   LinkedIn's public API doesn't allow much more than that).
+- **`shared/`** — cross-cutting libraries used by multiple agents:
+  [`agent-skills`](shared/agent-skills) is a registry of reusable,
+  tool-agnostic system-prompt modules ("skills" — e.g. `code-review`) that
+  any agent can layer on top of its own base behavior via `--skill <name>`.
 - **`agents/`** — purpose-built agents on top of one or more bridges:
   [`github-agent`](agents/github-agent) talks to GitHub via its remote MCP
   server, [`whatsapp-agent`](agents/whatsapp-agent) is a personal assistant
   driven by messaging yourself on WhatsApp, and
   [`linkedin-agent`](agents/linkedin-agent) reads your LinkedIn profile and
   posts on your behalf — all three let the caller pick which bridge/provider
-  to route through.
+  to route through, and `github-agent` additionally supports `--skill`.
 
 ## Shared MCP config
 

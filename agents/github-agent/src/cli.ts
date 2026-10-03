@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 import "dotenv/config";
+import { composeSystemPrompt, SKILL_NAMES, isSkillName } from "@clickonsearch/agent-skills";
 import { runGithubAgent, isProvider, PROVIDERS, type Provider } from "./providers.js";
 
 const DEFAULT_GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
 
-function parseArgs(argv: string[]): { provider?: Provider; prompt: string } {
+function parseArgs(argv: string[]): { provider?: Provider; skill?: string; prompt: string } {
   let provider: Provider | undefined;
+  let skill: string | undefined;
   const rest: string[] = [];
 
   for (let i = 0; i < argv.length; i++) {
@@ -16,12 +18,18 @@ function parseArgs(argv: string[]): { provider?: Provider; prompt: string } {
         throw new Error(`--provider must be one of ${PROVIDERS.join(", ")}, got "${value ?? "<missing>"}"`);
       }
       provider = value;
+    } else if (arg === "--skill") {
+      const value = argv[++i];
+      if (!isSkillName(value)) {
+        throw new Error(`--skill must be one of ${SKILL_NAMES.join(", ")}, got "${value ?? "<missing>"}"`);
+      }
+      skill = value;
     } else {
       rest.push(arg);
     }
   }
 
-  return { provider, prompt: rest.join(" ").trim() };
+  return { provider, skill, prompt: rest.join(" ").trim() };
 }
 
 function resolveProvider(fromFlag: Provider | undefined): Provider {
@@ -37,10 +45,10 @@ function resolveProvider(fromFlag: Provider | undefined): Provider {
 }
 
 async function main(): Promise<void> {
-  const { provider: providerFlag, prompt } = parseArgs(process.argv.slice(2));
+  const { provider: providerFlag, skill, prompt } = parseArgs(process.argv.slice(2));
 
   if (!prompt) {
-    console.error(`Usage: github-agent [--provider ${PROVIDERS.join("|")}] "<prompt>"`);
+    console.error(`Usage: github-agent [--provider ${PROVIDERS.join("|")}] [--skill ${SKILL_NAMES.join("|")}] "<prompt>"`);
     console.error("(provider also settable via the PROVIDER env var; defaults to openai)");
     process.exitCode = 1;
     return;
@@ -55,11 +63,13 @@ async function main(): Promise<void> {
 
   const provider = resolveProvider(providerFlag);
   const githubMcpUrl = process.env.GITHUB_MCP_URL ?? DEFAULT_GITHUB_MCP_URL;
+  const systemPrompt = composeSystemPrompt(undefined, skill);
 
   const answer = await runGithubAgent(provider, {
     prompt,
     githubToken,
     githubMcpUrl,
+    systemPrompt,
     onToolCall: (name, args) => {
       console.error(`[${provider}] tool call: ${name}(${JSON.stringify(args)})`);
     },

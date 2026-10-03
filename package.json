@@ -4,6 +4,7 @@
   "workspaces": [
     "bridges/*",
     "mcp-servers/*",
+    "shared/*",
     "agents/*"
   ],
   "scripts": {
