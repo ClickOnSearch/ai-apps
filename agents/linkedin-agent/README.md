@@ -3,6 +3,28 @@
 Read your LinkedIn profile and publish posts to your feed, through chat.
 Pick which AI model does the thinking — OpenAI, Claude, or DeepSeek.
 
+```
+your prompt
+               │
+               ▼
+┌─────────────────────────────┐
+│       linkedin-agent        │   reads your prompt
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│           bridge            │   openai / claude / deepseek — talks to the AI model
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     linkedin-mcp-server     │   reads/posts your profile
+└──────────────┬──────────────┘
+               │
+               ▼
+an answer, or a new post on your feed
+```
+
 ## What you need
 
 - Node.js 18+

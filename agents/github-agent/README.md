@@ -3,6 +3,28 @@
 Ask about your GitHub repos, pull requests, and issues in plain English.
 Pick which AI model does the thinking — OpenAI, Claude, or DeepSeek.
 
+```
+your prompt (CLI or browser chat)
+               │
+               ▼
+┌─────────────────────────────┐
+│        github-agent         │   reads your prompt
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│           bridge            │   openai / claude / deepseek — talks to the AI model
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ GitHub's remote MCP server  │   reads/writes your repos
+└──────────────┬──────────────┘
+               │
+               ▼
+an answer, or a posted PR comment
+```
+
 ## What you need
 
 - Node.js 18+

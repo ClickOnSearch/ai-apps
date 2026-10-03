@@ -11,6 +11,23 @@ README tells you when to start it.
 > cover. Risk is low for normal personal use, but there's a small chance of
 > the account getting flagged.
 
+```
+whatsapp-agent (or any MCP client)
+               │
+               ▼
+┌─────────────────────────────┐
+│     whatsapp-mcp-server     │   Streamable HTTP MCP
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│           Baileys           │   WhatsApp Web protocol
+└──────────────┬──────────────┘
+               │
+               ▼
+your WhatsApp account
+```
+
 ## Run
 
 ```bash

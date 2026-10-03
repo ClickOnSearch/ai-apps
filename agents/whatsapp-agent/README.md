@@ -5,6 +5,28 @@ instructions ("summarize my last chat with Sam", "send Alex a message
 saying I'm running late"), or talk to it from a browser instead. Pick which
 AI model does the thinking — OpenAI, Claude, or DeepSeek.
 
+```
+your WhatsApp message to yourself
+               │
+               ▼
+┌─────────────────────────────┐
+│       whatsapp-agent        │   reads the message
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│           bridge            │   openai / claude / deepseek — talks to the AI model
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     whatsapp-mcp-server     │   acts on your account
+└──────────────┬──────────────┘
+               │
+               ▼
+reply sent back on WhatsApp
+```
+
 ## What you need
 
 - Node.js 18+

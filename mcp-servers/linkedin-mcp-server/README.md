@@ -4,6 +4,23 @@ Connects a personal LinkedIn account to this repo's agents: read your
 profile, publish posts. Usually you won't run this directly —
 [`linkedin-agent`](../../agents/linkedin-agent)'s README tells you when to.
 
+```
+linkedin-agent (or any MCP client)
+               │
+               ▼
+┌─────────────────────────────┐
+│     linkedin-mcp-server     │   Streamable HTTP MCP
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│     LinkedIn OAuth API      │   get_profile / create_post
+└──────────────┬──────────────┘
+               │
+               ▼
+your LinkedIn account
+```
+
 ## Setup
 
 **1. Create a LinkedIn app** (free, a few minutes):

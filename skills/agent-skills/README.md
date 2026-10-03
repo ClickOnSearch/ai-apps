@@ -3,6 +3,18 @@
 A library of reusable instructions ("skills") any agent in this repo can
 turn on to change how it reasons — without changing what it can do.
 
+```
+a skill, e.g. code-review
+               │
+               ▼
+┌─────────────────────────────┐
+│        agent-skills         │   the instructions
+└──────────────┬──────────────┘
+               │
+               ▼
+--skill on an agent, an MCP prompt, or a static .md export
+```
+
 ## Available skills
 
 | Name          | What it does                                                        |
