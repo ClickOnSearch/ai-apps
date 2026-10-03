@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/whatsapp-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that connects to a personal WhatsApp account (via Baileys) and exposes it as tools — send messages, list chats, read recent messages, search contacts — plus an SSE stream of incoming messages.",
   "type": "module",
   "license": "MIT",

@@ -4,6 +4,14 @@ All notable changes to `@clickonsearch/deepseek-remote-mcp-bridge` are
 documented here. Each entry corresponds to the npm version it shipped in.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.2] - 2026-10-03
+
+### Changed
+
+- README rewritten to lead with `npx @clickonsearch/deepseek-remote-mcp-bridge
+  "prompt"` (no cloning or building required) instead of the monorepo
+  `npm run dev` workflow, which is now under "For developers".
+
 ## [0.2.1] - 2026-10-03
 
 ### Fixed

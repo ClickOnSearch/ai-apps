@@ -4,6 +4,16 @@ All notable changes to `@clickonsearch/whatsapp-mcp-server` are documented
 here. Each entry corresponds to the npm version it shipped in. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.1] - 2026-10-03
+
+### Changed
+
+- README rewritten to lead with `npx @clickonsearch/whatsapp-mcp-server`
+  (no cloning or building required) instead of the monorepo `npm run dev`
+  workflow, which is now under "For developers".
+- Added an architecture diagram showing how a request flows from an MCP
+  client through this server to your WhatsApp account via Baileys.
+
 ## [0.1.0] - 2026-09-19
 
 ### Added

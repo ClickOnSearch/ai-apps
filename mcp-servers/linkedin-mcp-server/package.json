@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/linkedin-mcp-server",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server for a personal LinkedIn account via LinkedIn's OAuth 2.0 API: read your own profile and publish posts to your feed.",
   "type": "module",
   "license": "MIT",

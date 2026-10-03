@@ -4,9 +4,15 @@ All notable changes to `@clickonsearch/agent-skills` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [0.1.0] - Unreleased
+## [0.1.1] - 2026-10-03
 
-Not yet published to npm.
+### Changed
+
+- Added an architecture diagram to the README showing how a skill flows
+  from this package into an agent's `--skill` flag, an MCP prompt, or a
+  static markdown export.
+
+## [0.1.0] - 2026-10-03
 
 ### Added
 

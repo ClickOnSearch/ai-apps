@@ -3,46 +3,65 @@
 Ask about your GitHub repos, pull requests, and issues in plain English.
 Pick which AI model does the thinking — OpenAI, Claude, or DeepSeek.
 
+```
+your prompt (CLI or browser chat)
+               │
+               ▼
+┌─────────────────────────────┐
+│        github-agent         │   reads your prompt
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│           bridge            │   openai / claude / deepseek — talks to the AI model
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ GitHub's remote MCP server  │   reads/writes your repos
+└──────────────┬──────────────┘
+               │
+               ▼
+an answer, or a posted PR comment
+```
+
 ## What you need
 
 - Node.js 18+
 - A [GitHub personal access token](https://github.com/settings/tokens)
 - An API key for at least one of: OpenAI, Anthropic (Claude), DeepSeek
 
-## Setup
-
-```bash
-# from the repo root, once
-npm install
-npm run build
-
-# then, in this folder
-cd agents/github-agent
-cp .env.example .env
-```
-
-Open `.env` and fill in `GITHUB_TOKEN` plus the API key for whichever
-provider you want to use.
-
 ## Use it: command line
 
 ```bash
-npm run dev -- --provider openai "list my 5 most recently updated open PRs"
-npm run dev -- --provider claude "summarize open issues labeled bug in this repo"
-npm run dev -- --provider deepseek "what's changed in this repo this week?"
+GITHUB_TOKEN=<your-token> ANTHROPIC_API_KEY=<your-key> \
+  npx @clickonsearch/github-agent --provider claude "list my 5 most recently updated open PRs"
 ```
 
-(`--provider` can be left out if you set `PROVIDER` in `.env`.)
+Swap in `OPENAI_API_KEY` + `--provider openai`, or `DEEPSEEK_API_KEY` +
+`--provider deepseek`, to use a different model. `--provider` can be left
+out if you set `PROVIDER` instead.
+
+Prefer not to put keys on the command line? Put the same variables in a
+`.env` file in whichever folder you run the command from — it's picked up
+automatically.
 
 ## Use it: browser chat
 
 ```bash
-npm run build
-npm run serve
+GITHUB_TOKEN=<your-token> ANTHROPIC_API_KEY=<your-key> \
+  npx -p @clickonsearch/github-agent github-agent-serve
 ```
 
 Then open `http://localhost:3000` in your browser and start chatting — pick
 your provider from the dropdown at the top.
+
+## Use it: embedded in another tool
+
+The browser chat server speaks the [AG-UI protocol](https://ag-ui.com)
+(`POST /agent`, streaming SSE) — any AG-UI-compatible client can drive it
+as a backend, not just the bundled page. Point your own frontend at
+`http://localhost:3000/agent` once `github-agent-serve` is running.
 
 ## Skills
 
@@ -51,13 +70,14 @@ Add `--skill code-review` (or any other skill from
 reasons, without changing what it can do:
 
 ```bash
-npm run dev -- --skill code-review "review pull request #12 in owner/repo and post your findings as a comment on it"
+GITHUB_TOKEN=<your-token> ANTHROPIC_API_KEY=<your-key> \
+  npx @clickonsearch/github-agent --skill code-review "review pull request #12 in owner/repo and post your findings as a comment on it"
 ```
 
 Point it at a real pull request (owner/repo + PR number) if you want the
 findings posted back to GitHub — the agent can only comment on something it
-can look up. A bare local diff (e.g. `$(git diff main)`) has nothing to
-comment on, so the agent just returns the findings as text instead.
+can look up. A bare local diff has nothing to comment on, so the agent just
+returns the findings as text instead.
 
 ## Config reference
 
@@ -79,6 +99,20 @@ comment on, so the agent just returns the findings as text instead.
 
 ## For developers
 
+**Running from source** (working on this agent's own code, not just using it):
+
+```bash
+# from the repo root, once
+npm install
+npm run build
+
+# then, in this folder
+cd agents/github-agent
+cp .env.example .env    # fill in GITHUB_TOKEN + a provider key
+npm run dev -- --provider claude "list my open PRs"
+npm run serve            # browser chat, same as github-agent-serve above
+```
+
 This agent talks to [GitHub's remote MCP server](https://api.githubcopilot.com/mcp/)
 through whichever provider bridge you pick
 ([`openai`](../../bridges/openai-remote-mcp-bridge) /
@@ -94,11 +128,8 @@ agent requests `all` by default so comment/review tools are always
 available; narrow it with `GITHUB_MCP_TOOLSETS` (comma-separated) if you
 want to restrict what the model can do.
 
-The browser chat is an [AG-UI protocol](https://ag-ui.com) server
-(`POST /agent`, streaming SSE events), so any AG-UI client can drive it, not
-just the bundled page. Multi-turn memory in the browser chat is handled by
-flattening prior messages into the prompt (the underlying provider calls
-are single-turn).
+Multi-turn memory in the browser chat is handled by flattening prior
+messages into the prompt (the underlying provider calls are single-turn).
 
 **Adding a new provider:** add a `runWith*` function in `src/providers.ts`,
 add its name to `PROVIDERS` — CLI flags, env var checks, and the chat UI

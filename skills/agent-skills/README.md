@@ -3,6 +3,18 @@
 A library of reusable instructions ("skills") any agent in this repo can
 turn on to change how it reasons — without changing what it can do.
 
+```
+a skill, e.g. code-review
+               │
+               ▼
+┌─────────────────────────────┐
+│        agent-skills         │   the instructions
+└──────────────┬──────────────┘
+               │
+               ▼
+--skill on an agent, an MCP prompt, or a static .md export
+```
+
 ## Available skills
 
 | Name          | What it does                                                        |
@@ -11,11 +23,12 @@ turn on to change how it reasons — without changing what it can do.
 
 ## Using a skill
 
-**From an agent in this repo** — any agent that supports `--skill`
-(currently [`github-agent`](../../agents/github-agent)):
+**From an agent that supports `--skill`** (currently
+[`github-agent`](../../agents/github-agent)):
 
 ```bash
-npm run dev -- --skill code-review "review this diff: $(git diff main)"
+GITHUB_TOKEN=<your-token> ANTHROPIC_API_KEY=<your-key> \
+  npx @clickonsearch/github-agent --skill code-review "review pull request #12 in owner/repo and post a comment"
 ```
 
 **From an external tool (GitHub Copilot, Cursor, Claude Desktop, Windsurf,

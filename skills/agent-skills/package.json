@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/agent-skills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Reusable, provider- and MCP-server-agnostic system-prompt modules (\"skills\") that any agent in this repo can layer on top of its own base instructions.",
   "type": "module",
   "license": "MIT",
