@@ -44,12 +44,25 @@ function resolveProvider(fromFlag: Provider | undefined): Provider {
   return "openai";
 }
 
+/** Mirrors resolveProvider: --skill overrides, else SKILL in .env, else no skill at all. */
+function resolveSkill(fromFlag: string | undefined): string | undefined {
+  if (fromFlag) return fromFlag;
+
+  const fromEnv = process.env.SKILL;
+  if (!fromEnv) return undefined;
+  if (!isSkillName(fromEnv)) {
+    throw new Error(`SKILL must be one of ${SKILL_NAMES.join(", ")}, got "${fromEnv}"`);
+  }
+
+  return fromEnv;
+}
+
 async function main(): Promise<void> {
-  const { provider: providerFlag, skill, prompt } = parseArgs(process.argv.slice(2));
+  const { provider: providerFlag, skill: skillFlag, prompt } = parseArgs(process.argv.slice(2));
 
   if (!prompt) {
     console.error(`Usage: github-agent [--provider ${PROVIDERS.join("|")}] [--skill ${SKILL_NAMES.join("|")}] "<prompt>"`);
-    console.error("(provider also settable via the PROVIDER env var; defaults to openai)");
+    console.error("(provider also settable via the PROVIDER env var, defaults to openai; skill also settable via the SKILL env var, defaults to none)");
     process.exitCode = 1;
     return;
   }
@@ -61,7 +74,17 @@ async function main(): Promise<void> {
     return;
   }
 
-  const provider = resolveProvider(providerFlag);
+  let provider: Provider;
+  let skill: string | undefined;
+  try {
+    provider = resolveProvider(providerFlag);
+    skill = resolveSkill(skillFlag);
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+    return;
+  }
+
   const githubMcpUrl = process.env.GITHUB_MCP_URL ?? DEFAULT_GITHUB_MCP_URL;
   const systemPrompt = composeSystemPrompt(undefined, skill);
 

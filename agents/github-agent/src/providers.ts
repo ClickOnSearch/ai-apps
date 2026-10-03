@@ -17,12 +17,26 @@ export function isProvider(value: unknown): value is Provider {
 
 export const GITHUB_SERVER_NAME = "github";
 
+/**
+ * GitHub's remote MCP server only exposes an undocumented "default toolset"
+ * unless the client asks for more. Tools for commenting/reviewing on a pull
+ * request live in the `pull_requests` toolset, which isn't guaranteed to be
+ * part of that default — so without this header, an agent can review code
+ * but has no tool to post the findings anywhere. "all" asks for every
+ * toolset; override with GITHUB_MCP_TOOLSETS if you want a narrower set.
+ */
+const DEFAULT_GITHUB_MCP_TOOLSETS = "all";
+
 export function githubServerConfig(githubToken: string, url: string): McpServerConfig {
+  const toolsets = process.env.GITHUB_MCP_TOOLSETS ?? DEFAULT_GITHUB_MCP_TOOLSETS;
   return {
     name: GITHUB_SERVER_NAME,
     url,
     transport: "http",
-    headers: { Authorization: `Bearer ${githubToken}` },
+    headers: {
+      Authorization: `Bearer ${githubToken}`,
+      "X-MCP-Toolsets": toolsets,
+    },
   };
 }
 

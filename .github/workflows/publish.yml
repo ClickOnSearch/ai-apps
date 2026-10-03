@@ -37,14 +37,15 @@ jobs:
         run: npm run build
 
       # Published in dependency order: github-agent, whatsapp-agent, and
-      # linkedin-agent all depend on the three bridges at a real semver
-      # range, so the bridges must exist on the registry first.
-      # whatsapp-mcp-server and linkedin-mcp-server have no @clickonsearch
-      # dependencies of their own (they're called over HTTP at runtime, not
-      # imported), so they can publish any time after the bridges. Each
-      # package is skipped if that exact name@version is already
-      # published, so re-running this workflow after a partial failure (or
-      # after bumping only one package) is safe.
+      # linkedin-agent all depend on the three bridges (and github-agent
+      # also on agent-skills) at a real semver range, so those must exist
+      # on the registry first. whatsapp-mcp-server and linkedin-mcp-server
+      # have no @clickonsearch dependencies of their own (they're called
+      # over HTTP at runtime, not imported), so they can publish any time
+      # after the bridges. Each package is skipped if that exact
+      # name@version is already published, so re-running this workflow
+      # after a partial failure (or after bumping only one package) is
+      # safe.
       - name: Publish packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -58,6 +59,7 @@ jobs:
             "bridges/deepseek-remote-mcp-bridge"
             "mcp-servers/whatsapp-mcp-server"
             "mcp-servers/linkedin-mcp-server"
+            "shared/agent-skills"
             "agents/github-agent"
             "agents/whatsapp-agent"
             "agents/linkedin-agent"

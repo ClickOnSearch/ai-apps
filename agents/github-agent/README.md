@@ -1,75 +1,30 @@
 # github-agent
 
-Talks to GitHub through [GitHub's remote MCP server](https://api.githubcopilot.com/mcp/),
-routed through [`openai-remote-mcp-bridge`](../../bridges/openai-remote-mcp-bridge),
-[`claude-remote-mcp-bridge`](../../bridges/claude-remote-mcp-bridge), or
-[`deepseek-remote-mcp-bridge`](../../bridges/deepseek-remote-mcp-bridge) depending on
-which model provider you prefer — chosen per run, not hardcoded.
+Ask about your GitHub repos, pull requests, and issues in plain English.
+Pick which AI model does the thinking — OpenAI, Claude, or DeepSeek.
 
-Two ways to use it:
+## What you need
 
-- **CLI** (`src/cli.ts`) — one-shot prompt in, answer out.
-- **AG-UI server + browser chat UI** (`src/server.ts` + `public/index.html`)
-  — a long-running HTTP server that speaks the
-  [AG-UI protocol](https://ag-ui.com), so any AG-UI-compatible frontend
-  (the bundled chat page, or your own using `@ag-ui/client`) can drive the
-  agent as an end user, watching text and tool calls stream in live.
-
-## How it works
-
-`src/providers.ts` builds one `McpServerConfig` pointing at the GitHub MCP
-endpoint (authenticated with `GITHUB_TOKEN`) and hands it to whichever
-bridge's `McpManager` + `runAgent` the caller picked:
-
-- `provider: "openai"` → `openai-remote-mcp-bridge`'s `McpManager`
-  (OpenAI tool schema) + Chat Completions tool-calling loop.
-- `provider: "claude"` → `claude-remote-mcp-bridge`'s `McpManager`
-  (Anthropic tool schema) + Messages API tool-use loop.
-- `provider: "deepseek"` → `deepseek-remote-mcp-bridge`'s `McpManager`
-  (OpenAI-compatible tool schema) + Chat Completions tool-calling loop,
-  via the `openai` SDK pointed at DeepSeek's endpoint.
-
-Every bridge implements the same `McpServerConfig` shape, so this package
-just swaps which one it imports at call time — the GitHub MCP connection
-and tool discovery work identically either way.
-
-```
-                    ┌── provider: openai   ──▶ openai-remote-mcp-bridge   ──┐
-prompt + GITHUB_TOKEN ┤── provider: claude   ──▶ claude-remote-mcp-bridge   ├──▶ GitHub remote MCP server
-                    └── provider: deepseek ──▶ deepseek-remote-mcp-bridge ──┘
-```
-
-**Adding a new provider:** add a `runWith*` function in `src/providers.ts`
-following the existing three, add its name to the `Provider` type and the
-`PROVIDERS` array (everything else — CLI flag validation, the `PROVIDER`
-env var, the AG-UI `forwardedProps.provider` check, and the chat UI's
-dropdown in `public/index.html` — reads off that one list or needs one
-matching `<option>` added), then document its env vars below and in
-`.env.example`.
+- Node.js 18+
+- A [GitHub personal access token](https://github.com/settings/tokens)
+- An API key for at least one of: OpenAI, Anthropic (Claude), DeepSeek
 
 ## Setup
 
-This package depends on its sibling bridges via npm workspaces, so install
-and build from the repo root once:
-
 ```bash
-cd <repo root>
+# from the repo root, once
 npm install
-npm run build   # builds every workspace (agents/* and bridges/*), including the bridges this depends on
-```
+npm run build
 
-Then configure this agent:
-
-```bash
+# then, in this folder
 cd agents/github-agent
 cp .env.example .env
-# fill in GITHUB_TOKEN, and whichever of OPENAI_API_KEY / ANTHROPIC_API_KEY / DEEPSEEK_API_KEY you'll use
 ```
 
-## Run: CLI
+Open `.env` and fill in `GITHUB_TOKEN` plus the API key for whichever
+provider you want to use.
 
-Pick the provider with `--provider` (or leave it on the `PROVIDER` env var
-default):
+## Use it: command line
 
 ```bash
 npm run dev -- --provider openai "list my 5 most recently updated open PRs"
@@ -77,77 +32,80 @@ npm run dev -- --provider claude "summarize open issues labeled bug in this repo
 npm run dev -- --provider deepseek "what's changed in this repo this week?"
 ```
 
-### Skills
+(`--provider` can be left out if you set `PROVIDER` in `.env`.)
 
-`--skill <name>` layers a reusable instruction set from
-[`@clickonsearch/agent-skills`](../../shared/agent-skills) on top of the
-prompt — same provider/MCP tools, different reasoning behavior:
-
-```bash
-npm run dev -- --skill code-review "review this diff: $(git diff main)"
-```
-
-See that package's README for what `code-review` checks and how to add a
-new skill; any skill registered there works here with no code changes.
-
-or build and run the compiled CLI:
+## Use it: browser chat
 
 ```bash
 npm run build
-npm start -- --provider claude "your prompt here"
+npm run serve
 ```
 
-## Run: AG-UI server + chat UI
+Then open `http://localhost:3000` in your browser and start chatting — pick
+your provider from the dropdown at the top.
+
+## Skills
+
+Add `--skill code-review` (or any other skill from
+[`agent-skills`](../../shared/agent-skills)) to change how the agent
+reasons, without changing what it can do:
 
 ```bash
-npm run build
-npm run serve          # or `npm run dev:serve` for tsx, no build step
+npm run dev -- --skill code-review "review pull request #12 in owner/repo and post your findings as a comment on it"
 ```
 
-This starts an HTTP server (default `http://localhost:3000`) with:
+Point it at a real pull request (owner/repo + PR number) if you want the
+findings posted back to GitHub — the agent can only comment on something it
+can look up. A bare local diff (e.g. `$(git diff main)`) has nothing to
+comment on, so the agent just returns the findings as text instead.
 
-- `GET /` — a self-contained chat page (`public/index.html`, no build step,
-  no dependencies) with a provider dropdown. Open it in a browser and talk
-  to the agent.
-- `POST /agent` — the AG-UI protocol endpoint. Accepts a `RunAgentInput`
-  JSON body (`threadId`, `runId`, `messages`, optional `forwardedProps`)
-  and streams back AG-UI events over SSE: `RUN_STARTED`, `TEXT_MESSAGE_*`
-  for assistant replies, `TOOL_CALL_START`/`TOOL_CALL_ARGS`/`TOOL_CALL_END`/
-  `TOOL_CALL_RESULT` for each GitHub MCP tool call, then `RUN_FINISHED`
-  (or `RUN_ERROR`). Point any AG-UI client at this endpoint — e.g.
-  `@ag-ui/client`'s `HttpAgent`, or CopilotKit's AG-UI adapter — not just
-  the bundled page.
-- `GET /health` — liveness check.
+## Config reference
 
-Per-request provider override (falls back to the server's `PROVIDER` env
-var default): set `forwardedProps: { provider: "openai" | "claude" | "deepseek" }`
-on the `RunAgentInput` you POST — the bundled chat UI's dropdown does this
-for you.
+| Env var             | Required               | Default                              |
+| -------------------- | ----------------------- | -------------------------------------- |
+| `GITHUB_TOKEN`        | yes                      |                                         |
+| `PROVIDER`            | no                       | `openai`                                |
+| `OPENAI_API_KEY`      | if using OpenAI          |                                         |
+| `OPENAI_MODEL`        | no                       | `gpt-4.1`                               |
+| `ANTHROPIC_API_KEY`   | if using Claude          |                                         |
+| `ANTHROPIC_MODEL`     | no                       | `claude-sonnet-5`                       |
+| `DEEPSEEK_API_KEY`    | if using DeepSeek        |                                         |
+| `DEEPSEEK_MODEL`      | no                       | `deepseek-chat`                         |
+| `GITHUB_MCP_URL`      | no                       | `https://api.githubcopilot.com/mcp/`    |
+| `GITHUB_MCP_TOOLSETS` | no                       | `all`                                   |
+| `PORT`                | no, browser chat only    | `3000`                                  |
 
-**Known limitation:** the underlying bridges run a single-turn agent loop
-(one `userPrompt` in, one answer out), so multi-turn memory isn't native.
-The server works around this by flattening prior `user`/`assistant`
-messages in the posted history into a text transcript passed as a system
-preamble, with the latest user message as the actual prompt — real
-continuity, but coarser than a provider-native multi-turn conversation.
+---
 
-## Config
+## For developers
 
-| Env var             | Required            | Notes                                              |
-| -------------------- | -------------------- | --------------------------------------------------- |
-| `GITHUB_TOKEN`        | always                | token for the GitHub MCP server                      |
-| `PROVIDER`            | no (default `openai`) | CLI: overridden by `--provider`. Server: default only, overridden per-request by `forwardedProps.provider` |
-| `GITHUB_MCP_URL`      | no                    | defaults to `https://api.githubcopilot.com/mcp/`      |
-| `PORT`                | no (default `3000`)   | server only                                          |
-| `OPENAI_API_KEY`      | when provider=openai  |                                                       |
-| `OPENAI_MODEL`        | no (default `gpt-4.1`)|                                                       |
-| `ANTHROPIC_API_KEY`   | when provider=claude  |                                                       |
-| `ANTHROPIC_MODEL`     | no (default `claude-sonnet-5`) |                                              |
-| `DEEPSEEK_API_KEY`    | when provider=deepseek |                                                      |
-| `DEEPSEEK_MODEL`      | no (default `deepseek-chat`) |                                                |
-| `DEEPSEEK_BASE_URL`   | no (default `https://api.deepseek.com`) |                                     |
+This agent talks to [GitHub's remote MCP server](https://api.githubcopilot.com/mcp/)
+through whichever provider bridge you pick
+([`openai`](../../bridges/openai-remote-mcp-bridge) /
+[`claude`](../../bridges/claude-remote-mcp-bridge) /
+[`deepseek`](../../bridges/deepseek-remote-mcp-bridge)) — all three expose
+the same interface, so swapping providers doesn't change how GitHub access
+works.
 
-## Using it as a library
+GitHub's remote MCP server groups its tools into toolsets (`repos`,
+`issues`, `pull_requests`, `actions`, ...) and only exposes an undocumented
+default subset unless asked for more, via the `X-MCP-Toolsets` header. This
+agent requests `all` by default so comment/review tools are always
+available; narrow it with `GITHUB_MCP_TOOLSETS` (comma-separated) if you
+want to restrict what the model can do.
+
+The browser chat is an [AG-UI protocol](https://ag-ui.com) server
+(`POST /agent`, streaming SSE events), so any AG-UI client can drive it, not
+just the bundled page. Multi-turn memory in the browser chat is handled by
+flattening prior messages into the prompt (the underlying provider calls
+are single-turn).
+
+**Adding a new provider:** add a `runWith*` function in `src/providers.ts`,
+add its name to `PROVIDERS` — CLI flags, env var checks, and the chat UI
+dropdown all read off that list automatically — then document its env vars
+above.
+
+**Using it as a library:**
 
 ```ts
 import { runGithubAgent } from "./src/index.js";

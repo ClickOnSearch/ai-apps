@@ -1,25 +1,15 @@
 # @clickonsearch/whatsapp-mcp-server
 
-Connects to **your personal WhatsApp account** (the same way WhatsApp Web
-does — scan a QR code, keep a linked-device session) via
-[Baileys](https://github.com/WhiskeySockets/Baileys), and exposes it as an
-MCP server: `send_message`, `list_chats`, `get_recent_messages`,
-`search_contacts`, plus a plain SSE stream of incoming messages for anything
-that wants to react to them live.
+Links a personal WhatsApp account to this repo's agents, the same way
+WhatsApp Web does — scan a QR code once, it stays connected. Usually you
+won't run this directly; [`whatsapp-agent`](../../agents/whatsapp-agent)'s
+README tells you when to start it.
 
-> **This is not the official WhatsApp Business API.** It's an unofficial
-> library automating a personal account, which is outside WhatsApp's ToS for
-> bots. Risk is generally low for personal, low-volume use, but there's a
-> real (if small) chance of the account being flagged. Go in aware of that.
-
-## Why an MCP server, not just a script
-
-Any of this repo's remote MCP bridges (`openai-remote-mcp-bridge`,
-`claude-remote-mcp-bridge`, `deepseek-remote-mcp-bridge`) can already
-connect to **any** MCP server over Streamable HTTP — including this one,
-running on `localhost`. This server needed zero special-casing in those
-bridges; it just had to speak the same protocol GitHub's remote MCP server
-does.
+> **Heads up:** this isn't the official WhatsApp Business API — it's an
+> unofficial library ([Baileys](https://github.com/WhiskeySockets/Baileys))
+> automating a personal account, which WhatsApp's terms don't really
+> cover. Risk is low for normal personal use, but there's a small chance of
+> the account getting flagged.
 
 ## Setup
 
@@ -35,38 +25,41 @@ cp .env.example .env
 npm run dev
 ```
 
-On first run it prints a QR code in the terminal — scan it from your phone:
-**WhatsApp → Settings → Linked devices → Link a device**. The session is
-then saved to `WHATSAPP_AUTH_DIR` (default `./whatsapp-auth`) so you won't
-need to re-scan on restart, unless you log the device out from your phone.
+The first time, it prints a QR code — scan it with your phone: **WhatsApp →
+Settings → Linked devices → Link a device**. After that it reconnects
+automatically, no need to scan again (unless you unlink the device from
+your phone).
 
-Once connected:
+Once connected, it's listening on `http://localhost:4100` for whatever
+agent you point at it.
 
-- `POST http://localhost:4100/mcp` — the MCP endpoint (Streamable HTTP,
-  stateless — same shape as the SDK's own reference server).
-- `GET http://localhost:4100/events` — SSE stream of every incoming
-  message: `{ chatId, fromMe, senderName, text, timestamp }`.
-- `GET http://localhost:4100/health` — `{ ok, connected, self }`, where
-  `self` is your own normalized JID once connected.
-
-## Config
+## Config reference
 
 | Env var             | Default            | Notes                                         |
 | -------------------- | ------------------ | ---------------------------------------------- |
 | `PORT`               | `4100`              |                                                 |
-| `WHATSAPP_AUTH_DIR`  | `./whatsapp-auth`   | Your session — never commit this directory     |
-| `BAILEYS_LOG_LEVEL`  | `silent`            | `info`/`debug` if you need to see WA internals |
+| `WHATSAPP_AUTH_DIR`  | `./whatsapp-auth`   | Your session — never share or commit this folder |
+| `BAILEYS_LOG_LEVEL`  | `silent`            | Set to `info` or `debug` to see connection details |
 
-## Tools
+## What it exposes
 
-| Tool                  | Args                          | Notes                                          |
-| ---------------------- | ------------------------------ | ----------------------------------------------- |
-| `send_message`         | `to`, `text`                    | `to` accepts a phone number or a raw JID        |
-| `list_chats`           | —                               | Includes history Baileys backfills on connect, plus anything live since |
-| `get_recent_messages`  | `chat`, `limit` (default 20)   | In-memory only, capped at the last 200/chat — how far back that reaches depends on how much history WhatsApp backfilled on connect |
-| `search_contacts`      | `query`                        | Matches by name or number substring             |
+| Tool                  | What it does                          |
+| ---------------------- | --------------------------------------- |
+| `send_message`         | Sends a text message to a phone number or chat |
+| `list_chats`           | Lists chats seen since connecting (includes WhatsApp's own recent history) |
+| `get_recent_messages`  | Gets recent messages from one chat (up to 200, in memory only) |
+| `search_contacts`      | Finds a contact by name or number       |
 
-## Using it as a library
+---
+
+## For developers
+
+This runs as a standard MCP server (Streamable HTTP on `/mcp`), so any of
+this repo's bridges can connect to it with no special-casing — it just had
+to speak the same protocol GitHub's own remote MCP server does. It also
+exposes `GET /events` (a plain SSE stream of incoming messages) and
+`GET /health` (`{ ok, connected, self }`) for anything that wants to react
+to messages live, like `whatsapp-agent` does.
 
 ```ts
 import { WhatsAppConnection } from "./src/whatsapp.js";
