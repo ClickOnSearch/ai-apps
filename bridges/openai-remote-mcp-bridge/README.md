@@ -1,27 +1,8 @@
 # openai-remote-mcp-bridge
 
-Lets an OpenAI tool-calling agent (Chat Completions API) discover and invoke
-tools exposed by one or more **remote** MCP servers.
-
-## How it works
-
-1. `McpManager` connects to each remote MCP server listed in the configured
-   `mcp.config.json` (shared at the repo root by default — see
-   [Config](#config) — or a bridge-local file) via Streamable HTTP or SSE
-   transport, and lists its tools.
-2. Each MCP tool's JSON Schema is exposed to OpenAI as a `function` tool,
-   namespaced as `<serverName>__<toolName>` to avoid collisions across servers.
-3. `runAgent` drives the standard OpenAI tool-calling loop: send messages +
-   tools to the model, and whenever it emits a `tool_calls`, dispatch the
-   call to the matching MCP server via `McpManager.callTool` and feed the
-   result back as a `tool` message. Repeats until the model returns a final
-   answer (or `maxTurns` is hit).
-
-```
-OpenAI model --tool_calls--> McpManager --MCP protocol--> remote MCP server
-     ^                                                           |
-     └────────────────────── tool result ───────────────────────┘
-```
+Lets OpenAI call tools from any remote MCP server. Most people use this
+through [`github-agent`](../../agents/github-agent) rather than directly —
+this README is for using the bridge on its own.
 
 ## Setup
 
@@ -31,18 +12,19 @@ npm install
 cp .env.example .env            # fill in OPENAI_API_KEY
 ```
 
-MCP servers are configured once, shared across every bridge in this repo —
-see [Config](#config). If the shared config doesn't exist yet:
+This bridge reads its list of MCP servers from a shared config file at the
+repo root. If it doesn't exist yet:
 
 ```bash
 cd ../..
-cp mcp.config.example.json mcp.config.json   # point at your remote MCP server(s), then fill in tokens
+cp mcp.config.example.json mcp.config.json
+# edit it to point at your MCP server(s), and fill in any tokens it references
 ```
 
 ## Run
 
 ```bash
-npm run dev -- "What's the weather in the servers you have access to?"
+npm run dev -- "your prompt here"
 ```
 
 or build and run the compiled CLI:
@@ -52,10 +34,9 @@ npm run build
 npm start -- "your prompt here"
 ```
 
-## Config
+## Config reference
 
-`../../mcp.config.json` (repo root) — shared by every bridge in this repo,
-pointed at via `MCP_CONFIG_PATH` in `.env`:
+`../../mcp.config.json` (shared across every bridge — see root README):
 
 ```json
 {
@@ -70,15 +51,29 @@ pointed at via `MCP_CONFIG_PATH` in `.env`:
 }
 ```
 
-- `transport` is `"http"` (Streamable HTTP, the current MCP standard) or
-  `"sse"` for legacy servers.
-- Header values support `${ENV_VAR}` interpolation, resolved from `.env`.
-- Want this bridge to use a different set of MCP servers than the others?
-  Point `MCP_CONFIG_PATH` at its own file instead, e.g.
-  `MCP_CONFIG_PATH=./mcp.config.json` plus a local
-  `cp ../../mcp.config.example.json mcp.config.json`.
+- `transport` is `"http"` or `"sse"`.
+- Header values can reference env vars with `${ENV_VAR}`.
+- To use a different set of MCP servers than the other bridges, point
+  `MCP_CONFIG_PATH` in `.env` at your own file instead.
 
-## Using it as a library
+---
+
+## For developers
+
+**How it works:** `McpManager` connects to each configured MCP server and
+lists its tools, exposing each one to OpenAI as a `function` tool
+(namespaced `<serverName>__<toolName>` to avoid collisions). `runAgent`
+then runs the standard OpenAI tool-calling loop — send messages + tools,
+dispatch any `tool_calls` to the matching MCP server, feed the result back
+— until the model returns a final answer.
+
+```
+OpenAI model --tool_calls--> McpManager --MCP protocol--> remote MCP server
+     ^                                                           |
+     └────────────────────── tool result ───────────────────────┘
+```
+
+**Using it as a library:**
 
 ```ts
 import OpenAI from "openai";
@@ -99,10 +94,9 @@ const answer = await runAgent({
 await mcp.closeAll();
 ```
 
-### Conversation history
-
-Pass earlier turns as `history` (oldest first) to give the model the context
-of an ongoing conversation. They are sent before `userPrompt`:
+**Conversation history:** pass earlier turns as `history` (oldest first,
+plain text, sent before `userPrompt`) to give the model context from an
+ongoing conversation:
 
 ```ts
 const answer = await runAgent({
@@ -115,6 +109,5 @@ const answer = await runAgent({
 });
 ```
 
-History is plain text: tool calls and results from earlier turns are not
-replayed. Keep it bounded (for example, the last 20 messages) to control cost.
-
+Tool calls/results from earlier turns aren't replayed — keep `history`
+bounded (e.g. the last 20 messages) to control cost.

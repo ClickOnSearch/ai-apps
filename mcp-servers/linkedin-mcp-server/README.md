@@ -1,38 +1,19 @@
 # @clickonsearch/linkedin-mcp-server
 
-MCP server for a **personal** LinkedIn account via LinkedIn's OAuth 2.0 API.
-Exposes exactly two tools: `get_profile` and `create_post`.
-
-## Why only two tools
-
-LinkedIn's public API is far more restricted than GitHub's or Gmail's. A
-standard, self-serve developer app can only:
-
-- Read the authenticated member's own basic profile (OpenID Connect).
-- Publish a post to their own feed (`w_member_social`).
-
-**Sending LinkedIn messages is not available via any public API** — it only
-exists under partner programs (Talent Solutions, Sales Navigator) that
-require a formal application and LinkedIn's manual approval; there is no
-self-serve path to it at all.
-
-**Replying/commenting on posts** has a documented endpoint
-(`/v2/socialActions/{urn}/comments`), but creating comments requires a
-separate LinkedIn Developer Program product ("Community Management API" or
-similar) that also needs LinkedIn's case-by-case approval — it is not
-included in standard "Sign In with LinkedIn" / "Share on LinkedIn" access.
-This server doesn't implement it; if you get that access approved, adding
-a `create_comment` tool following the same pattern as `create_post` would
-be straightforward.
+Connects a personal LinkedIn account to this repo's agents: read your
+profile, publish posts. Usually you won't run this directly —
+[`linkedin-agent`](../../agents/linkedin-agent)'s README tells you when to.
 
 ## Setup
 
-1. Create an app at [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps).
-2. Under **Products**, add **"Sign In with LinkedIn using OpenID Connect"**
-   and **"Share on LinkedIn"** — both are self-serve, no approval wait.
-3. Under **Auth**, add an **Authorized redirect URL** matching
-   `LINKEDIN_REDIRECT_URI` below exactly (default `http://localhost:3300/callback`).
+**1. Create a LinkedIn app** (free, a few minutes):
+
+1. Go to [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps) → Create app.
+2. Under **Products**, add **"Sign In with LinkedIn using OpenID Connect"** and **"Share on LinkedIn"**.
+3. Under **Auth**, add an **Authorized redirect URL**: `http://localhost:3300/callback`.
 4. Copy the app's **Client ID** and **Client Secret**.
+
+**2. Configure this server:**
 
 ```bash
 cd mcp-servers/linkedin-mcp-server
@@ -41,20 +22,18 @@ cp .env.example .env
 # fill in LINKEDIN_CLIENT_ID / LINKEDIN_CLIENT_SECRET
 ```
 
-## Authorize (one-time)
+**3. Authorize it (one time):**
 
 ```bash
 npm run dev:authorize
 ```
 
-This prints a URL — open it, sign in, approve — and it saves a token to
-`LINKEDIN_TOKEN_PATH` (default `./linkedin-token.json`, gitignored).
+This opens a link — sign in, approve, done. It saves a token to
+`linkedin-token.json` so you don't need to do this again.
 
-**Important:** LinkedIn only issues a refresh token to apps it has approved
-for offline access. For a standard app, the access token this saves is
-valid for **~60 days** and there is no automatic renewal — re-run this
-command once it expires (tools will fail with a clear "access token has
-expired" error when that happens).
+> LinkedIn's access tokens last ~60 days and (for a standard app) don't
+> auto-renew. When yours expires, just run `npm run dev:authorize` again —
+> you'll get a clear error telling you to when that happens.
 
 ## Run
 
@@ -62,17 +41,27 @@ expired" error when that happens).
 npm run dev
 ```
 
-- `POST http://localhost:4300/mcp` — the MCP endpoint (Streamable HTTP, stateless).
-- `GET http://localhost:4300/health` — liveness check.
+It's now listening on `http://localhost:4300` for whatever agent you point
+at it.
 
-## Tools
+## What it exposes
 
-| Tool           | Args   | Notes                                                |
-| -------------- | ------ | ----------------------------------------------------- |
-| `get_profile`  | —      | Name, email, picture — from the OpenID Connect userinfo endpoint |
-| `create_post`  | `text` | Publishes to the authenticated member's own feed, `visibility: PUBLIC` |
+| Tool           | What it does                                          |
+| -------------- | -------------------------------------------------------- |
+| `get_profile`  | Your name, email, and picture                              |
+| `create_post`  | Publishes a text post to your own feed                     |
 
-## Using it as a library
+## Good to know
+
+LinkedIn's public API only allows reading your own profile and posting to
+your own feed — that's genuinely everything a standard app can do. It
+**can't** send messages (no public API for that at all) or comment on
+other people's posts (needs special LinkedIn approval). This server
+doesn't pretend otherwise.
+
+---
+
+## For developers
 
 ```ts
 import { TokenManager, LinkedInClient, createServer } from "./src/index.js";

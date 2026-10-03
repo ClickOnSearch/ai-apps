@@ -1,38 +1,14 @@
 # claude-remote-mcp-bridge
 
-Lets a Claude agent (Messages API tool use) discover and invoke tools
-exposed by one or more **remote** MCP servers. Mirrors
-[`../openai-remote-mcp-bridge`](../openai-remote-mcp-bridge) with the
-Anthropic SDK's tool-use loop in place of OpenAI's Chat Completions loop.
+Lets Claude call tools from any remote MCP server. Most people use this
+through [`github-agent`](../../agents/github-agent) rather than directly —
+this README is for using the bridge on its own.
 
-> Note: Anthropic's Messages API also has a built-in (beta) MCP connector
-> (`mcp_servers` on `messages.create`) that lets Claude call a remote MCP
-> server directly, no bridge required. Use this project when you want your
-> own process in the loop — for auth injection, logging/auditing tool
-> calls, filtering which tools are exposed, or fanning out across multiple
-> MCP servers with custom namespacing.
-
-## How it works
-
-1. `McpManager` connects to each remote MCP server listed in the configured
-   `mcp.config.json` (shared at the repo root by default — see
-   [Config](#config) — or a bridge-local file) via Streamable HTTP or SSE
-   transport, and lists its tools.
-2. Each MCP tool's JSON Schema is exposed to Claude as a tool definition
-   (`name` + `input_schema`), namespaced as `<serverName>__<toolName>` to
-   avoid collisions across servers.
-3. `runAgent` drives the standard Claude tool-use loop: send messages +
-   tools to the model, and whenever `stop_reason` is `"tool_use"`, dispatch
-   each `tool_use` block to the matching MCP server via
-   `McpManager.callTool` and feed the result back as a `tool_result`
-   content block. Repeats until Claude returns a final text answer (or
-   `maxTurns` is hit).
-
-```
-Claude --tool_use--> McpManager --MCP protocol--> remote MCP server
-   ^                                                     |
-   └───────────────────── tool_result ──────────────────┘
-```
+> Anthropic's Messages API also has a built-in (beta) MCP connector that
+> lets Claude call a remote MCP server directly, no bridge needed. Use this
+> bridge instead when you want your own process in the loop — auth
+> injection, logging tool calls, filtering which tools are exposed, or
+> combining multiple MCP servers.
 
 ## Setup
 
@@ -42,18 +18,19 @@ npm install
 cp .env.example .env            # fill in ANTHROPIC_API_KEY
 ```
 
-MCP servers are configured once, shared across every bridge in this repo —
-see [Config](#config). If the shared config doesn't exist yet:
+This bridge reads its list of MCP servers from a shared config file at the
+repo root. If it doesn't exist yet:
 
 ```bash
 cd ../..
-cp mcp.config.example.json mcp.config.json   # point at your remote MCP server(s), then fill in tokens
+cp mcp.config.example.json mcp.config.json
+# edit it to point at your MCP server(s), and fill in any tokens it references
 ```
 
 ## Run
 
 ```bash
-npm run dev -- "What's the weather in the servers you have access to?"
+npm run dev -- "your prompt here"
 ```
 
 or build and run the compiled CLI:
@@ -63,10 +40,9 @@ npm run build
 npm start -- "your prompt here"
 ```
 
-## Config
+## Config reference
 
-`../../mcp.config.json` (repo root) — shared by every bridge in this repo,
-pointed at via `MCP_CONFIG_PATH` in `.env`:
+`../../mcp.config.json` (shared across every bridge — see root README):
 
 ```json
 {
@@ -81,15 +57,30 @@ pointed at via `MCP_CONFIG_PATH` in `.env`:
 }
 ```
 
-- `transport` is `"http"` (Streamable HTTP, the current MCP standard) or
-  `"sse"` for legacy servers.
-- Header values support `${ENV_VAR}` interpolation, resolved from `.env`.
-- Want this bridge to use a different set of MCP servers than the others?
-  Point `MCP_CONFIG_PATH` at its own file instead, e.g.
-  `MCP_CONFIG_PATH=./mcp.config.json` plus a local
-  `cp ../../mcp.config.example.json mcp.config.json`.
+- `transport` is `"http"` or `"sse"`.
+- Header values can reference env vars with `${ENV_VAR}`.
+- To use a different set of MCP servers than the other bridges, point
+  `MCP_CONFIG_PATH` in `.env` at your own file instead.
 
-## Using it as a library
+---
+
+## For developers
+
+**How it works:** `McpManager` connects to each configured MCP server and
+lists its tools, exposing each one to Claude as a tool definition (`name` +
+`input_schema`, namespaced `<serverName>__<toolName>` to avoid
+collisions). `runAgent` then runs the standard Claude tool-use loop — send
+messages + tools, and whenever `stop_reason` is `"tool_use"`, dispatch each
+call to the matching MCP server and feed the result back — until Claude
+returns a final text answer.
+
+```
+Claude --tool_use--> McpManager --MCP protocol--> remote MCP server
+   ^                                                     |
+   └───────────────────── tool_result ──────────────────┘
+```
+
+**Using it as a library:**
 
 ```ts
 import Anthropic from "@anthropic-ai/sdk";
@@ -110,10 +101,9 @@ const answer = await runAgent({
 await mcp.closeAll();
 ```
 
-### Conversation history
-
-Pass earlier turns as `history` (oldest first) to give the model the context
-of an ongoing conversation. They are sent before `userPrompt`:
+**Conversation history:** pass earlier turns as `history` (oldest first,
+plain text, sent before `userPrompt`) to give the model context from an
+ongoing conversation:
 
 ```ts
 const answer = await runAgent({
@@ -126,9 +116,7 @@ const answer = await runAgent({
 });
 ```
 
-History is plain text: tool calls and results from earlier turns are not
-replayed. Keep it bounded (for example, the last 20 messages) to control cost.
-
-The Messages API expects the conversation to open with a user turn, so any
-assistant messages before the first user message in `history` are skipped.
-
+Tool calls/results from earlier turns aren't replayed — keep `history`
+bounded (e.g. the last 20 messages) to control cost. The Messages API
+requires the conversation to open with a user turn, so any assistant
+messages before the first user message in `history` are skipped.
