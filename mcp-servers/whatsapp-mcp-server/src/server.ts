@@ -5,6 +5,7 @@ import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js
 import type { Express } from "express";
 import { WhatsAppConnection, normalizeJid } from "./whatsapp.js";
 import type { StoredMessage } from "./store.js";
+import { requireBearerToken, type ListenConfig } from "./access.js";
 
 function buildMcpServer(whatsapp: WhatsAppConnection): McpServer {
   const server = new McpServer({ name: "whatsapp-mcp-server", version: "0.1.0" }, { capabilities: {} });
@@ -70,9 +71,17 @@ function buildMcpServer(whatsapp: WhatsAppConnection): McpServer {
  * part of MCP itself — MCP is request/response, so a consumer that wants
  * to react to new messages needs a separate push channel), and `GET /health`
  * reports connection status.
+ *
+ * `listen` must match what the caller passes to `app.listen`. The SDK's Host
+ * header check only guards browser-origin (DNS rebinding) attacks and is
+ * trivially bypassed by a network client sending `Host: localhost`, so it
+ * is not authentication: `authToken`, when set, gates every route.
  */
-export function createServer(whatsapp: WhatsAppConnection): Express {
-  const app = createMcpExpressApp();
+export function createServer(whatsapp: WhatsAppConnection, listen: ListenConfig = { host: "127.0.0.1" }): Express {
+  const app = createMcpExpressApp({ host: listen.host });
+  if (listen.authToken) {
+    app.use(requireBearerToken(listen.authToken));
+  }
 
   app.post("/mcp", async (req, res) => {
     try {

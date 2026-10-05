@@ -85,7 +85,8 @@ as a backend, not just the bundled page.
 | `ANTHROPIC_MODEL`     | no                    | `claude-sonnet-5`           |
 | `DEEPSEEK_API_KEY`    | if using DeepSeek     |                             |
 | `DEEPSEEK_MODEL`      | no                    | `deepseek-chat`             |
-| `WHATSAPP_MCP_URL`    | no                    | `http://localhost:4100`     |
+| `WHATSAPP_MCP_URL`    | no                    | `http://127.0.0.1:4100`     |
+| `WHATSAPP_MCP_TOKEN`  | only if the server needs one | |
 | `PORT`                | no, browser chat only | `3100`                      |
 
 ## Good to know

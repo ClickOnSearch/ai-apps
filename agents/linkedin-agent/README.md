@@ -92,7 +92,8 @@ as a backend, not just the bundled page.
 | `ANTHROPIC_MODEL`     | no                    | `claude-sonnet-5`           |
 | `DEEPSEEK_API_KEY`    | if using DeepSeek     |                             |
 | `DEEPSEEK_MODEL`      | no                    | `deepseek-chat`             |
-| `LINKEDIN_MCP_URL`    | no                    | `http://localhost:4300`     |
+| `LINKEDIN_MCP_URL`    | no                    | `http://127.0.0.1:4300`     |
+| `LINKEDIN_MCP_TOKEN`  | only if the server needs one | |
 | `PORT`                | no, browser chat only | `3200`                      |
 
 ## Good to know

@@ -22,7 +22,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const mcpServerUrl = process.env.WHATSAPP_MCP_URL ?? "http://localhost:4100";
+  const mcpServerUrl = process.env.WHATSAPP_MCP_URL ?? "http://127.0.0.1:4100";
 
   console.error(`whatsapp-agent starting (initial provider: ${provider}, whatsapp-mcp-server: ${mcpServerUrl})`);
 

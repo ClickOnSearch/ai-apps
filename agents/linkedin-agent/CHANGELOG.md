@@ -4,6 +4,19 @@ All notable changes to `@clickonsearch/linkedin-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.2] - 2026-10-06
+
+### Added
+
+- Reads `LINKEDIN_MCP_TOKEN` and sends it as a bearer token to
+  `linkedin-mcp-server` 0.2.0+ when it's run with a token (required there
+  whenever it listens beyond localhost).
+
+### Changed
+
+- `LINKEDIN_MCP_URL` defaults to `http://127.0.0.1:4300` (was `localhost`),
+  matching `linkedin-mcp-server`'s new loopback-only default bind.
+
 ## [0.1.1] - 2026-10-03
 
 ### Changed

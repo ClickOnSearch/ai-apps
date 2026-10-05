@@ -4,6 +4,21 @@ All notable changes to `@clickonsearch/whatsapp-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.2] - 2026-10-06
+
+### Added
+
+- Reads `WHATSAPP_MCP_TOKEN` and sends it as a bearer token on MCP calls,
+  `/health` and `/events`, for `whatsapp-mcp-server` 0.2.0+ when it's run
+  with a token (required there whenever it listens beyond localhost).
+- A rejected token now stops with "set WHATSAPP_MCP_TOKEN" instead of
+  waiting forever for the server to appear.
+
+### Changed
+
+- `WHATSAPP_MCP_URL` defaults to `http://127.0.0.1:4100` (was `localhost`),
+  matching `whatsapp-mcp-server`'s new loopback-only default bind.
+
 ## [0.1.1] - 2026-10-03
 
 ### Changed

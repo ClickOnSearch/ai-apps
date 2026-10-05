@@ -15,9 +15,16 @@ export function isProvider(value: unknown): value is Provider {
 
 export const LINKEDIN_SERVER_NAME = "linkedin";
 
-/** `baseUrl` is linkedin-mcp-server's origin (e.g. "http://localhost:4300") — its MCP endpoint is at /mcp. */
+/** `baseUrl` is linkedin-mcp-server's origin (e.g. "http://127.0.0.1:4300") — its MCP endpoint is at /mcp. */
 export function linkedinServerConfig(baseUrl: string): McpServerConfig {
-  return { name: LINKEDIN_SERVER_NAME, url: new URL("/mcp", baseUrl).toString(), transport: "http" };
+  // Same LINKEDIN_MCP_TOKEN linkedin-mcp-server checks; omitted when that server doesn't require one.
+  const token = process.env.LINKEDIN_MCP_TOKEN;
+  return {
+    name: LINKEDIN_SERVER_NAME,
+    url: new URL("/mcp", baseUrl).toString(),
+    transport: "http",
+    ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+  };
 }
 
 export const DEFAULT_SYSTEM_PROMPT = [

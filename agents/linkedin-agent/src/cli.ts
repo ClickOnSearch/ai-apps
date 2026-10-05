@@ -45,7 +45,7 @@ async function main(): Promise<void> {
   }
 
   const provider = resolveProvider(providerFlag);
-  const linkedinMcpUrl = process.env.LINKEDIN_MCP_URL ?? "http://localhost:4300";
+  const linkedinMcpUrl = process.env.LINKEDIN_MCP_URL ?? "http://127.0.0.1:4300";
 
   const answer = await runLinkedInAgent(provider, {
     prompt,
