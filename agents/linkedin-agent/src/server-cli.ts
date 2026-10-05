@@ -22,7 +22,7 @@ function main(): void {
     return;
   }
 
-  const linkedinMcpUrl = process.env.LINKEDIN_MCP_URL ?? "http://localhost:4300";
+  const linkedinMcpUrl = process.env.LINKEDIN_MCP_URL ?? "http://127.0.0.1:4300";
   const port = Number(process.env.PORT ?? 3200);
 
   const app = createServer({ linkedinMcpUrl, defaultProvider });

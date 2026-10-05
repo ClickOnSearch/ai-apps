@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/whatsapp-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Personal WhatsApp assistant, usable two ways: message yourself on WhatsApp to give it instructions, or drive it from a browser chat UI over the AG-UI protocol. Routed through OpenAI, Claude, or DeepSeek depending on preference.",
   "type": "module",
   "license": "MIT",

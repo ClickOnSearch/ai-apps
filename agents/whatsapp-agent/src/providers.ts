@@ -16,12 +16,24 @@ export function isProvider(value: unknown): value is Provider {
 export const WHATSAPP_SERVER_NAME = "whatsapp";
 
 /**
- * `baseUrl` is whatsapp-mcp-server's origin (e.g. "http://localhost:4100"),
+ * `baseUrl` is whatsapp-mcp-server's origin (e.g. "http://127.0.0.1:4100"),
  * the same value used for its /health and /events endpoints elsewhere in
  * this package — its actual MCP endpoint is at /mcp.
  */
 export function whatsappServerConfig(baseUrl: string): McpServerConfig {
-  return { name: WHATSAPP_SERVER_NAME, url: new URL("/mcp", baseUrl).toString(), transport: "http" };
+  const headers = whatsappAuthHeaders();
+  return {
+    name: WHATSAPP_SERVER_NAME,
+    url: new URL("/mcp", baseUrl).toString(),
+    transport: "http",
+    ...(Object.keys(headers).length > 0 ? { headers } : {}),
+  };
+}
+
+/** Same WHATSAPP_MCP_TOKEN whatsapp-mcp-server checks; empty when that server doesn't require one. */
+export function whatsappAuthHeaders(): Record<string, string> {
+  const token = process.env.WHATSAPP_MCP_TOKEN;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export const DEFAULT_SYSTEM_PROMPT = [

@@ -4,6 +4,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
 import type { Express } from "express";
 import type { LinkedInClient } from "./linkedin.js";
+import { requireBearerToken, type ListenConfig } from "./access.js";
 
 function buildMcpServer(linkedin: LinkedInClient): McpServer {
   const server = new McpServer({ name: "linkedin-mcp-server", version: "0.1.0" }, { capabilities: {} });
@@ -38,9 +39,17 @@ function buildMcpServer(linkedin: LinkedInClient): McpServer {
  * `GET /health` is a liveness check. Unlike whatsapp-mcp-server, there's no
  * push/events stream here — LinkedIn's API is pure request/response, there's
  * nothing to watch for.
+ *
+ * `listen` must match what the caller passes to `app.listen`. The SDK's Host
+ * header check only guards browser-origin (DNS rebinding) attacks and is
+ * trivially bypassed by a network client sending `Host: localhost`, so it
+ * is not authentication: `authToken`, when set, gates every route.
  */
-export function createServer(linkedin: LinkedInClient): Express {
-  const app = createMcpExpressApp();
+export function createServer(linkedin: LinkedInClient, listen: ListenConfig = { host: "127.0.0.1" }): Express {
+  const app = createMcpExpressApp({ host: listen.host });
+  if (listen.authToken) {
+    app.use(requireBearerToken(listen.authToken));
+  }
 
   app.post("/mcp", async (req, res) => {
     try {

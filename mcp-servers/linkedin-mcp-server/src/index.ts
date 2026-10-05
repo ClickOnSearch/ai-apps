@@ -3,3 +3,5 @@ export type { LinkedInOAuthConfig, StoredToken } from "./auth.js";
 export { LinkedInClient } from "./linkedin.js";
 export type { LinkedInProfile } from "./linkedin.js";
 export { createServer } from "./server.js";
+export { resolveListenConfig, requireBearerToken, isLoopbackHost } from "./access.js";
+export type { ListenConfig } from "./access.js";

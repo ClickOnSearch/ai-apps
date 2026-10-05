@@ -22,7 +22,7 @@ function main(): void {
     return;
   }
 
-  const mcpServerUrl = process.env.WHATSAPP_MCP_URL ?? "http://localhost:4100";
+  const mcpServerUrl = process.env.WHATSAPP_MCP_URL ?? "http://127.0.0.1:4100";
   const port = Number(process.env.PORT ?? 3100);
 
   const app = createServer({ mcpServerUrl, defaultProvider });

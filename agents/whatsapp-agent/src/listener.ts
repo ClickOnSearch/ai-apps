@@ -1,6 +1,6 @@
 import { setTimeout as sleep } from "node:timers/promises";
 import { McpManager } from "@clickonsearch/openai-remote-mcp-bridge";
-import { runAssistantAgent, whatsappServerConfig, type Provider } from "./providers.js";
+import { runAssistantAgent, whatsappAuthHeaders, whatsappServerConfig, type Provider } from "./providers.js";
 
 interface WhatsAppMessageEvent {
   chatId: string;
@@ -18,16 +18,24 @@ interface WhatsAppMessageEvent {
   timestamp: number;
 }
 
+class UnauthorizedError extends Error {
+  constructor() {
+    super("whatsapp-mcp-server rejected our credentials (HTTP 401). Set WHATSAPP_MCP_TOKEN to the same value the server uses.");
+  }
+}
+
 /** Polls the whatsapp-mcp-server's /health until it reports a connected session, returning the self JID. */
 async function waitForSelfId(mcpServerUrl: string, onLog?: (line: string) => void): Promise<string> {
   const healthUrl = new URL("/health", mcpServerUrl).toString();
 
   for (;;) {
     try {
-      const res = await fetch(healthUrl);
+      const res = await fetch(healthUrl, { headers: whatsappAuthHeaders() });
+      if (res.status === 401) throw new UnauthorizedError();
       const body = (await res.json()) as { connected: boolean; self: string | null };
       if (body.connected && body.self) return body.self;
-    } catch {
+    } catch (error) {
+      if (error instanceof UnauthorizedError) throw error;
       // whatsapp-mcp-server isn't up yet
     }
     onLog?.("Waiting for whatsapp-mcp-server to report a connected WhatsApp session...");
@@ -70,7 +78,8 @@ export async function startListener(options: StartListenerOptions): Promise<void
   await replyToSelf(mcpServerUrl, selfId, `Assistant is online (provider: ${provider}).`);
 
   const eventsUrl = new URL("/events", mcpServerUrl).toString();
-  const res = await fetch(eventsUrl);
+  const res = await fetch(eventsUrl, { headers: whatsappAuthHeaders() });
+  if (res.status === 401) throw new UnauthorizedError();
   if (!res.ok || !res.body) {
     throw new Error(`Failed to connect to whatsapp-mcp-server's events stream: HTTP ${res.status}`);
   }

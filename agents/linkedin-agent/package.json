@@ -1,6 +1,6 @@
 {
   "name": "@clickonsearch/linkedin-agent",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Agent for a personal LinkedIn account (read your profile, publish posts) via linkedin-mcp-server, routed through OpenAI, Claude, or DeepSeek depending on preference. Ships an AG-UI protocol server plus a browser chat UI.",
   "type": "module",
   "license": "MIT",

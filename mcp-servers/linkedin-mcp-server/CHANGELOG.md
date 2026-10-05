@@ -4,6 +4,34 @@ All notable changes to `@clickonsearch/linkedin-mcp-server` are documented
 here. Each entry corresponds to the npm version it shipped in. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.0] - 2026-10-06
+
+### Security
+
+- Same flaw as `whatsapp-mcp-server` 0.1.1: `app.listen(port)` with no host
+  exposed `/mcp` on every network interface with no caller authentication,
+  letting any network client (including one sending `Host: localhost`) call
+  `get_profile` and `create_post` — publishing to your LinkedIn feed as you.
+  Affects 0.1.0 and 0.1.1.
+  See the [advisory](../../advisories/2026-10-06-mcp-servers-network-exposure.md). Reported by 0xwaidwerk.
+- Now listens on `127.0.0.1` only by default.
+- New `BIND_HOST` and `LINKEDIN_MCP_TOKEN` settings. When a token is set,
+  every route requires `Authorization: Bearer <token>` (constant-time
+  comparison). The server refuses to start on any non-loopback `BIND_HOST`
+  without a token of at least 16 characters.
+
+### Changed
+
+- **Breaking:** if you relied on reaching this server from another
+  machine, it will no longer be reachable until you set `BIND_HOST` and
+  `LINKEDIN_MCP_TOKEN` (see the README) and give the same token to
+  `linkedin-agent` (0.1.2 or later; older agents can't send a token).
+- `LINKEDIN_CLIENT_ID` / `LINKEDIN_CLIENT_SECRET` are no longer required to
+  start the server — only to refresh an expiring token. A still-valid saved
+  token works without them, and a refresh attempted without them now fails
+  with a clear message instead of a startup error.
+- Default URLs in docs now use `127.0.0.1` instead of `localhost`.
+
 ## [0.1.1] - 2026-10-03
 
 ### Changed

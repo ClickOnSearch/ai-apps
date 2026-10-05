@@ -4,6 +4,33 @@ All notable changes to `@clickonsearch/whatsapp-mcp-server` are documented
 here. Each entry corresponds to the npm version it shipped in. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.0] - 2026-10-06
+
+### Security
+
+- The server called `app.listen(port)` with no host, so it listened on every
+  network interface with no caller authentication. The SDK's Host-header
+  check only defends against browser DNS-rebinding and is bypassed by any
+  network client sending `Host: localhost`, which gave unauthenticated
+  access to `/mcp` (send messages, list chats, read messages, search
+  contacts), the `/events` message stream, and `/health`. Affects 0.1.0 and
+  0.1.1.
+  See the [advisory](../../advisories/2026-10-06-mcp-servers-network-exposure.md). Reported by 0xwaidwerk.
+- Now listens on `127.0.0.1` only by default.
+- New `BIND_HOST` and `WHATSAPP_MCP_TOKEN` settings. When a token is set,
+  every route requires `Authorization: Bearer <token>` (constant-time
+  comparison). The server refuses to start on any non-loopback `BIND_HOST`
+  without a token of at least 16 characters.
+
+### Changed
+
+- **Breaking:** if you relied on reaching this server from another
+  machine, it will no longer be reachable until you set `BIND_HOST` and
+  `WHATSAPP_MCP_TOKEN` (see the README) and give the same token to
+  `whatsapp-agent` (0.1.2 or later; older agents can't send a token).
+- Default URLs in docs now use `127.0.0.1` instead of `localhost`, which can
+  resolve to IPv6 `::1` first and miss a loopback-only IPv4 listener.
+
 ## [0.1.1] - 2026-10-03
 
 ### Changed

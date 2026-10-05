@@ -52,8 +52,25 @@ LINKEDIN_CLIENT_ID=<id> LINKEDIN_CLIENT_SECRET=<secret> \
   npx @clickonsearch/linkedin-mcp-server
 ```
 
-It's now listening on `http://localhost:4300` for whatever agent you point
+It's now listening on `http://127.0.0.1:4300` for whatever agent you point
 at it.
+
+### Letting another machine connect
+
+By default only programs on the same computer can reach this server. To
+allow others (an agent in a container, or on another machine), pick a
+secret and set both:
+
+```bash
+export LINKEDIN_MCP_TOKEN=$(openssl rand -hex 32)
+BIND_HOST=0.0.0.0 npx @clickonsearch/linkedin-mcp-server
+```
+
+Give `linkedin-agent` the same `LINKEDIN_MCP_TOKEN` and it sends it
+automatically. The server refuses to start on any other address without a
+token. Anyone holding the token can post to your LinkedIn feed as you, so
+treat it like a password — and since it travels over plain HTTP, only use
+this on a network you trust or behind TLS (for example a reverse proxy).
 
 ## What it exposes
 

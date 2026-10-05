@@ -39,7 +39,7 @@ Settings → Linked devices → Link a device**. After that it reconnects
 automatically, no need to scan again (unless you unlink the device from
 your phone).
 
-Once connected, it's listening on `http://localhost:4100` for whatever
+Once connected, it's listening on `http://127.0.0.1:4100` for whatever
 agent you point at it. No environment variables are required to try it —
 everything below has a default.
 
@@ -48,8 +48,28 @@ everything below has a default.
 | Env var             | Default            | Notes                                         |
 | -------------------- | ------------------ | ---------------------------------------------- |
 | `PORT`               | `4100`              |                                                 |
+| `BIND_HOST`          | `127.0.0.1`         | Who can connect. The default means only this computer |
+| `WHATSAPP_MCP_TOKEN` | unset               | Secret every caller must send. Required whenever `BIND_HOST` isn't `127.0.0.1` |
 | `WHATSAPP_AUTH_DIR`  | `./whatsapp-auth`   | Your session — never share or commit this folder |
 | `BAILEYS_LOG_LEVEL`  | `silent`            | Set to `info` or `debug` to see connection details |
+
+### Letting another machine connect
+
+By default only programs on the same computer can reach this server. To
+allow others (an agent in a container, or on another machine), pick a
+secret and set both:
+
+```bash
+export WHATSAPP_MCP_TOKEN=$(openssl rand -hex 32)
+BIND_HOST=0.0.0.0 npx @clickonsearch/whatsapp-mcp-server
+```
+
+Give `whatsapp-agent` the same `WHATSAPP_MCP_TOKEN` and it sends it
+automatically. The server refuses to start on any other address without a
+token. Anyone holding the token can read your chats and send messages as
+you, so treat it like a password — and since it travels over plain HTTP,
+only use this on a network you trust or behind TLS (for example a reverse
+proxy).
 
 ## What it exposes
 

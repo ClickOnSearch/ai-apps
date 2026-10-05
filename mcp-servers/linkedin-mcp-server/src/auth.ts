@@ -126,6 +126,12 @@ export class TokenManager {
             'offline access; without one, re-run "npm run authorize" to get a new token.',
         );
       }
+      if (!this.config.clientId || !this.config.clientSecret) {
+        throw new Error(
+          "LinkedIn access token needs refreshing, but LINKEDIN_CLIENT_ID/LINKEDIN_CLIENT_SECRET aren't " +
+            'set. Add them to your .env, or re-run "npm run authorize" to get a fresh token.',
+        );
+      }
       this.token = await refreshAccessToken(this.config, this.token.refreshToken);
       await saveToken(this.tokenPath, this.token);
     }
