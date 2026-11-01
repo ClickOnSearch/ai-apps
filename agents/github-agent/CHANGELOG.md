@@ -4,6 +4,22 @@ All notable changes to `@clickonsearch/github-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.4] - 2026-11-01
+
+### Fixed
+
+- With only one API key set (for example `ANTHROPIC_API_KEY`) and no
+  `--provider` or `PROVIDER`, the agent assumed OpenAI and failed with
+  "Missing OPENAI_API_KEY". It now uses the provider whose key is set; OpenAI
+  remains the default when its key is set or none is. The browser chat's
+  starting provider follows the same rule.
+
+### Changed
+
+- README: new "Choose your AI model" section near the top, with a table of
+  provider, API key variable, where to get a key and how to select it, plus a
+  "not sure which?" note.
+
 ## [0.1.3] - 2026-11-01
 
 ### Changed

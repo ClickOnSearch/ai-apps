@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import { runLinkedInAgent, isProvider, PROVIDERS, type Provider } from "./providers.js";
+import { runLinkedInAgent, isProvider, inferProvider, PROVIDERS, type Provider } from "./providers.js";
 
 function parseArgs(argv: string[]): { provider?: Provider; prompt: string } {
   let provider: Provider | undefined;
@@ -31,7 +31,7 @@ function resolveProvider(fromFlag: Provider | undefined): Provider {
     throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
 
-  return "openai";
+  return inferProvider();
 }
 
 async function main(): Promise<void> {

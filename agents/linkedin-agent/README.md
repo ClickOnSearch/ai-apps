@@ -31,6 +31,20 @@ an answer, or a new post on your feed
 - A LinkedIn Developer app (free, a few minutes — see step 1 below)
 - An API key for at least one of: OpenAI, Anthropic (Claude), DeepSeek
 
+## Choose your AI model
+
+The agent works with three AI providers. Use whichever one you have an API key for:
+
+| Provider | Set this API key | Get a key | Choose it with |
+| --- | --- | --- | --- |
+| OpenAI (GPT) | `OPENAI_API_KEY` | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | `--provider openai` or `PROVIDER=openai` |
+| Claude (Anthropic) | `ANTHROPIC_API_KEY` | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) | `--provider claude` or `PROVIDER=claude` |
+| DeepSeek | `DEEPSEEK_API_KEY` | [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) | `--provider deepseek` or `PROVIDER=deepseek` |
+
+Set just one key and that provider is used automatically. If you set several, pick one with `--provider <name>` or `PROVIDER=<name>`. In the browser chat, the provider is the dropdown at the top of the page; it starts on the provider your key selects.
+
+**Not sure which?** Use whichever key you already have. Every agent works with all three, and you can switch later without changing anything else. Starting from scratch? Any of them is fine to try; DeepSeek is usually the cheapest.
+
 ## Setup
 
 **1. Create a LinkedIn app:**
@@ -85,7 +99,7 @@ as a backend, not just the bundled page.
 
 | Env var             | Required            | Default                 |
 | -------------------- | -------------------- | -------------------------- |
-| `PROVIDER`            | no                    | `openai`                    |
+| `PROVIDER`            | no                    | whichever API key is set    |
 | `OPENAI_API_KEY`      | if using OpenAI       |                             |
 | `OPENAI_MODEL`        | no                    | `gpt-4.1`                   |
 | `ANTHROPIC_API_KEY`   | if using Claude       |                             |

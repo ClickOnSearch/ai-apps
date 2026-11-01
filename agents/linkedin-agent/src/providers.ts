@@ -13,6 +13,22 @@ export function isProvider(value: unknown): value is Provider {
   return typeof value === "string" && (PROVIDERS as readonly string[]).includes(value);
 }
 
+export const API_KEY_ENV: Readonly<Record<Provider, string>> = {
+  openai: "OPENAI_API_KEY",
+  claude: "ANTHROPIC_API_KEY",
+  deepseek: "DEEPSEEK_API_KEY",
+};
+
+/**
+ * Used when neither --provider nor PROVIDER is given: the provider whose API
+ * key is set, so `ANTHROPIC_API_KEY=... npx ...` just works. OpenAI stays the
+ * default when its key is set or when no key is set.
+ */
+export function inferProvider(env: NodeJS.ProcessEnv = process.env): Provider {
+  if (env[API_KEY_ENV.openai]) return "openai";
+  return PROVIDERS.find((p) => env[API_KEY_ENV[p]]) ?? "openai";
+}
+
 export const LINKEDIN_SERVER_NAME = "linkedin";
 
 /** `baseUrl` is linkedin-mcp-server's origin (e.g. "http://127.0.0.1:4300") — its MCP endpoint is at /mcp. */

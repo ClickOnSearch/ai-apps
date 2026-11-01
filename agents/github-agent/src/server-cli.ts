@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { createServer } from "./server.js";
-import { isProvider, PROVIDERS, type Provider } from "./providers.js";
+import { isProvider, inferProvider, PROVIDERS, type Provider } from "./providers.js";
 
 const DEFAULT_GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
 
@@ -11,7 +11,7 @@ function resolveDefaultProvider(): Provider {
   if (fromEnv) {
     throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
-  return "openai";
+  return inferProvider();
 }
 
 function main(): void {
