@@ -1,21 +1,12 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { createServer } from "./server.js";
-import { isProvider, PROVIDERS, type Provider } from "./providers.js";
-
-function resolveDefaultProvider(): Provider {
-  const fromEnv = process.env.PROVIDER;
-  if (isProvider(fromEnv)) return fromEnv;
-  if (fromEnv) {
-    throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
-  }
-  return "openai";
-}
+import { resolveProvider, type Provider } from "./providers.js";
 
 function main(): void {
   let defaultProvider: Provider;
   try {
-    defaultProvider = resolveDefaultProvider();
+    defaultProvider = resolveProvider();
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;

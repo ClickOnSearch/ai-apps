@@ -35,9 +35,14 @@ npx @clickonsearch/whatsapp-mcp-server
 ```
 
 The first time, it prints a QR code — scan it with your phone: **WhatsApp →
-Settings → Linked devices → Link a device**. After that it reconnects
-automatically, no need to scan again (unless you unlink the device from
-your phone).
+Settings → Linked devices → Link a device**. If the code looks garbled, make
+the terminal window bigger (or zoom out) and run it again. After that it
+reconnects automatically, no need to scan again (unless you unlink the
+device from your phone).
+
+Your login is saved in `~/.clickonsearch/whatsapp-auth`, so it works the same
+from any folder. (If you used an earlier version, a `whatsapp-auth` folder in
+the folder you ran it from is still used, so you don't have to link again.)
 
 Once connected, it's listening on `http://127.0.0.1:4100` for whatever
 agent you point at it. No environment variables are required to try it —
@@ -50,7 +55,7 @@ everything below has a default.
 | `PORT`               | `4100`              |                                                 |
 | `BIND_HOST`          | `127.0.0.1`         | Who can connect. The default means only this computer |
 | `WHATSAPP_MCP_TOKEN` | unset               | Secret every caller must send. Required whenever `BIND_HOST` isn't `127.0.0.1` |
-| `WHATSAPP_AUTH_DIR`  | `./whatsapp-auth`   | Your session — never share or commit this folder |
+| `WHATSAPP_AUTH_DIR`  | `~/.clickonsearch/whatsapp-auth` | Your session — never share or commit this folder |
 | `BAILEYS_LOG_LEVEL`  | `silent`            | Set to `info` or `debug` to see connection details |
 
 ### Letting another machine connect

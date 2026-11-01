@@ -1,4 +1,4 @@
-export { runAssistantAgent, whatsappServerConfig, WHATSAPP_SERVER_NAME, isProvider, PROVIDERS } from "./providers.js";
+export { runAssistantAgent, whatsappServerConfig, WHATSAPP_SERVER_NAME, isProvider, resolveProvider, API_KEY_ENV, PROVIDERS } from "./providers.js";
 export type { Provider, RunAssistantAgentOptions } from "./providers.js";
 export { startListener } from "./listener.js";
 export type { StartListenerOptions } from "./listener.js";

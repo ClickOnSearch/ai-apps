@@ -3,6 +3,7 @@ import "dotenv/config";
 import { WhatsAppConnection } from "./whatsapp.js";
 import { createServer } from "./server.js";
 import { resolveListenConfig, type ListenConfig } from "./access.js";
+import { resolveAuthDir } from "./authDir.js";
 
 async function main(): Promise<void> {
   let listen: ListenConfig;
@@ -14,7 +15,9 @@ async function main(): Promise<void> {
     return;
   }
 
-  const authFolder = process.env.WHATSAPP_AUTH_DIR ?? "./whatsapp-auth";
+  const { dir: authFolder, note } = resolveAuthDir();
+  if (note) console.error(note);
+  console.error(`WhatsApp session folder: ${authFolder}`);
   const port = Number(process.env.PORT ?? 4100);
 
   const whatsapp = new WhatsAppConnection(authFolder);

@@ -4,6 +4,28 @@ All notable changes to `@clickonsearch/whatsapp-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.3] - 2026-11-01
+
+### Fixed
+
+- `ANTHROPIC_API_KEY=... npx @clickonsearch/whatsapp-agent` (the README's own
+  example) failed on the first message with "Missing OPENAI_API_KEY", because
+  the model defaulted to OpenAI regardless of which key you set. It now uses
+  the provider whose API key is set (`PROVIDER` still wins; OpenAI remains the
+  default when its key is set or none is). The browser chat's default model
+  follows the same rule.
+- A missing API key is now reported at startup, with the exact command to fix
+  it, instead of when the first WhatsApp message arrives.
+
+### Changed
+
+- While waiting for WhatsApp, the agent now says what is actually wrong:
+  either `whatsapp-mcp-server` isn't running (with the command to start it) or
+  it's running but WhatsApp isn't linked yet (scan the QR code). It repeats
+  the reminder every ~30 seconds rather than every 2 seconds.
+- README: the two-program setup is explained up front, with what to expect
+  and what each "Waiting..." message means.
+
 ## [0.1.2] - 2026-10-06
 
 ### Added

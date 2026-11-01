@@ -1,4 +1,5 @@
 import type { TokenManager } from "./auth.js";
+import { escapeLittleText } from "./littleText.js";
 
 const API_BASE = "https://api.linkedin.com";
 
@@ -78,7 +79,7 @@ export class LinkedInClient {
       },
       body: JSON.stringify({
         author: `urn:li:person:${profile.sub}`,
-        commentary: text,
+        commentary: escapeLittleText(text),
         visibility: "PUBLIC",
         distribution: {
           feedDistribution: "MAIN_FEED",
