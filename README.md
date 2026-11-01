@@ -6,8 +6,25 @@ does the thinking.
 
 ## Quick start
 
-Each agent below is a published npm package you run with `npx` — no
-cloning, no building. Pick one and follow its README for the exact command:
+**1. Choose your AI model.** Every agent here talks to an AI model, and you
+pick which one. Use whichever provider you already have an API key for:
+
+| Provider | Set this API key | Get a key | Choose it with |
+| --- | --- | --- | --- |
+| OpenAI (GPT) | `OPENAI_API_KEY` | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | `PROVIDER=openai` |
+| Claude (Anthropic) | `ANTHROPIC_API_KEY` | [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys) | `PROVIDER=claude` |
+| DeepSeek | `DEEPSEEK_API_KEY` | [platform.deepseek.com/api_keys](https://platform.deepseek.com/api_keys) | `PROVIDER=deepseek` |
+
+Set just one key and that provider is used automatically. If you set several,
+choose with `PROVIDER=openai|claude|deepseek` (or `--provider <name>` where an
+agent has that flag). In the browser chat it's a dropdown at the top.
+
+**Not sure which?** Use whichever key you already have. Every agent works with
+all three, and you can switch later without changing anything else. Starting
+from scratch? Any of them is fine to try; DeepSeek is usually the cheapest.
+
+**2. Choose an agent.** Each one is a published npm package you run with
+`npx` — no cloning, no building. Follow its README for the exact command:
 
 - **[github-agent](agents/github-agent)** — ask about your repos, PRs, and issues.
 - **[whatsapp-agent](agents/whatsapp-agent)** — a personal assistant you talk to over WhatsApp.

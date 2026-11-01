@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { createServer } from "./server.js";
-import { isProvider, PROVIDERS, type Provider } from "./providers.js";
+import { isProvider, inferProvider, PROVIDERS, type Provider } from "./providers.js";
 
 function resolveDefaultProvider(): Provider {
   const fromEnv = process.env.PROVIDER;
@@ -9,7 +9,7 @@ function resolveDefaultProvider(): Provider {
   if (fromEnv) {
     throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
-  return "openai";
+  return inferProvider();
 }
 
 function main(): void {

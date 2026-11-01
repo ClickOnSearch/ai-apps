@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { composeSystemPrompt, SKILL_NAMES, isSkillName } from "@clickonsearch/agent-skills";
-import { runGithubAgent, isProvider, PROVIDERS, type Provider } from "./providers.js";
+import { runGithubAgent, isProvider, inferProvider, PROVIDERS, type Provider } from "./providers.js";
 
 const DEFAULT_GITHUB_MCP_URL = "https://api.githubcopilot.com/mcp/";
 
@@ -41,7 +41,7 @@ function resolveProvider(fromFlag: Provider | undefined): Provider {
     throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
   }
 
-  return "openai";
+  return inferProvider();
 }
 
 /** Mirrors resolveProvider: --skill overrides, else SKILL in .env, else no skill at all. */

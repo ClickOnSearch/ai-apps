@@ -4,6 +4,14 @@ All notable changes to `@clickonsearch/whatsapp-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.4] - 2026-11-01
+
+### Changed
+
+- README: new "Choose your AI model" section near the top, with a table of
+  provider, API key variable, where to get a key and how to select it, plus a
+  "not sure which?" note.
+
 ## [0.1.3] - 2026-11-01
 
 ### Fixed
