@@ -99,7 +99,7 @@ README, "Letting another machine connect".
 ## If you may have been exposed
 
 - **WhatsApp:** on your phone, open Settings → Linked devices and log the
-  device out, then delete the server's `whatsapp-auth` folder and link again.
+  device out, then delete the server's `whatsapp-auth` folder (in the folder you ran it from, or `~/.clickonsearch/whatsapp-auth` in newer versions) and link again.
   This revokes the session.
 - **LinkedIn:** revoke the app's access to your account in LinkedIn's
   permitted-services settings (or regenerate the app's client secret), delete

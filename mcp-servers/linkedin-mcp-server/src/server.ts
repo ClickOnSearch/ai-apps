@@ -21,8 +21,10 @@ function buildMcpServer(linkedin: LinkedInClient): McpServer {
   server.registerTool(
     "create_post",
     {
-      description: "Publish a text post to the authenticated member's own LinkedIn feed",
-      inputSchema: { text: z.string().describe("Post text") },
+      description:
+        "Publish a plain-text post to the authenticated member's own LinkedIn feed. " +
+        "No markdown or @mentions (they appear literally); #hashtags become hashtags.",
+      inputSchema: { text: z.string().describe("Post text, sent exactly as written") },
     },
     async ({ text }: { text: string }) => {
       const result = await linkedin.createPost(text);

@@ -36,14 +36,19 @@ reply sent back on WhatsApp
 
 ## Use it: over WhatsApp
 
-**1. Start the WhatsApp connection** (own terminal, keep it running):
+This takes two programs running side by side, each in its own terminal:
+one links your WhatsApp account, the other is the assistant.
+
+**1. Link your WhatsApp** (first terminal, keep it running):
 
 ```bash
 npx @clickonsearch/whatsapp-mcp-server
 ```
 
-Scan the QR code it prints with your phone (WhatsApp → Settings → Linked
-devices → Link a device).
+After a few seconds it prints a QR code. On your phone open **WhatsApp →
+Settings → Linked devices → Link a device** and scan it. When it works you'll
+see `WhatsApp connected as ...`. You only do this once — the link is
+remembered, whichever folder you run it from.
 
 **2. Start the assistant** (second terminal):
 
@@ -55,8 +60,15 @@ Now message **yourself** on WhatsApp ("Message yourself" in your contacts)
 with something like "list my most recent chats" — the reply comes back in
 that same conversation.
 
-Swap in `OPENAI_API_KEY` + `PROVIDER=openai`, or `DEEPSEEK_API_KEY` +
-`PROVIDER=deepseek`, to use a different model.
+The assistant uses whichever model you have an API key for (OpenAI, Claude
+or DeepSeek). If you set more than one, choose with `PROVIDER=openai`,
+`claude` or `deepseek`.
+
+**Stuck on "Waiting..."?** The message says why:
+- *Can't reach whatsapp-mcp-server* — step 1 isn't running. Start it.
+- *WhatsApp isn't linked yet* — scan the QR code in the step 1 terminal. If
+  it looks garbled, make that terminal window bigger or zoom out and run it
+  again.
 
 ## Use it: browser chat
 
@@ -78,7 +90,7 @@ as a backend, not just the bundled page.
 
 | Env var             | Required            | Default                 |
 | -------------------- | -------------------- | -------------------------- |
-| `PROVIDER`            | no                    | `openai`                    |
+| `PROVIDER`            | no                    | whichever API key is set    |
 | `OPENAI_API_KEY`      | if using OpenAI       |                             |
 | `OPENAI_MODEL`        | no                    | `gpt-4.1`                   |
 | `ANTHROPIC_API_KEY`   | if using Claude       |                             |

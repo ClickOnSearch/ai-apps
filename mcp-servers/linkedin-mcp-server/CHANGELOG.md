@@ -4,6 +4,17 @@ All notable changes to `@clickonsearch/linkedin-mcp-server` are documented
 here. Each entry corresponds to the npm version it shipped in. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.1] - 2026-10-06
+
+### Fixed
+
+- `create_post` could publish a post cut off partway through. LinkedIn parses
+  the post text as "little" text, where `| { } @ [ ] ( ) < > # \ * _ ~` are
+  reserved and must be backslash-escaped; a plain `(` was enough to
+  truncate it. The server now escapes them, so text is published exactly as
+  written. `#hashtags` are kept as real hashtags; `@mentions` and markdown
+  appear literally.
+
 ## [0.2.0] - 2026-10-06
 
 ### Security

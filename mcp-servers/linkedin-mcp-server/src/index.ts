@@ -5,3 +5,4 @@ export type { LinkedInProfile } from "./linkedin.js";
 export { createServer } from "./server.js";
 export { resolveListenConfig, requireBearerToken, isLoopbackHost } from "./access.js";
 export type { ListenConfig } from "./access.js";
+export { escapeLittleText } from "./littleText.js";

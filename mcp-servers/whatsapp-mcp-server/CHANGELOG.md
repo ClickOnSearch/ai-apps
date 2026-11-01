@@ -4,6 +4,20 @@ All notable changes to `@clickonsearch/whatsapp-mcp-server` are documented
 here. Each entry corresponds to the npm version it shipped in. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.2.1] - 2026-11-01
+
+### Changed
+
+- The linked-device session is now stored in `~/.clickonsearch/whatsapp-auth`
+  (private to your user) instead of `./whatsapp-auth` in whichever folder you
+  ran the command from. Running from a different folder used to ask for a new
+  QR code, and left WhatsApp login credentials inside project folders where
+  they could be committed. An existing `./whatsapp-auth` is still used, so
+  nobody has to re-link; set `WHATSAPP_AUTH_DIR` to use any other location.
+- Prints the session folder on start, and the logged-out message now says
+  which folder to delete to link again.
+- README: clearer first-run steps and a tip for a QR code that looks garbled.
+
 ## [0.2.0] - 2026-10-06
 
 ### Security

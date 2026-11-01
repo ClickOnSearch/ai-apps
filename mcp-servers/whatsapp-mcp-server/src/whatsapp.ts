@@ -128,7 +128,7 @@ export class WhatsAppConnection extends EventEmitter {
         const statusCode = (lastDisconnect?.error as { output?: { statusCode?: number } } | undefined)?.output
           ?.statusCode;
         const loggedOut = statusCode === DisconnectReason.loggedOut;
-        console.error(`WhatsApp connection closed${loggedOut ? " (logged out — delete the auth folder to relink)" : ", reconnecting..."}`);
+        console.error(`WhatsApp connection closed${loggedOut ? ` (logged out — delete ${this.authFolder} and restart to link again)` : ", reconnecting..."}`);
         if (loggedOut) {
           this.emit("logged-out");
         } else {

@@ -27,18 +27,33 @@ class UnauthorizedError extends Error {
 /** Polls the whatsapp-mcp-server's /health until it reports a connected session, returning the self JID. */
 async function waitForSelfId(mcpServerUrl: string, onLog?: (line: string) => void): Promise<string> {
   const healthUrl = new URL("/health", mcpServerUrl).toString();
+  let lastState: "unreachable" | "unlinked" | undefined;
 
-  for (;;) {
+  for (let poll = 0; ; poll++) {
+    let state: "unreachable" | "unlinked";
     try {
       const res = await fetch(healthUrl, { headers: whatsappAuthHeaders() });
       if (res.status === 401) throw new UnauthorizedError();
       const body = (await res.json()) as { connected: boolean; self: string | null };
       if (body.connected && body.self) return body.self;
+      state = "unlinked";
     } catch (error) {
       if (error instanceof UnauthorizedError) throw error;
-      // whatsapp-mcp-server isn't up yet
+      state = "unreachable";
     }
-    onLog?.("Waiting for whatsapp-mcp-server to report a connected WhatsApp session...");
+
+    // Say it when the situation changes, then remind every ~30s instead of every poll.
+    if (state !== lastState || poll % 15 === 0) {
+      onLog?.(
+        state === "unreachable"
+          ? `Can't reach whatsapp-mcp-server at ${mcpServerUrl}. Start it in another terminal:\n` +
+              "  npx @clickonsearch/whatsapp-mcp-server\n" +
+              "The first time, it shows a QR code to scan. Waiting..."
+          : "whatsapp-mcp-server is running, but WhatsApp isn't linked yet. Scan the QR code in the terminal " +
+              "where it's running (WhatsApp > Settings > Linked devices > Link a device). Waiting...",
+      );
+    }
+    lastState = state;
     await sleep(2000);
   }
 }

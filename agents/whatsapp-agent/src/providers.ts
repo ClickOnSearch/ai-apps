@@ -13,6 +13,27 @@ export function isProvider(value: unknown): value is Provider {
   return typeof value === "string" && (PROVIDERS as readonly string[]).includes(value);
 }
 
+export const API_KEY_ENV: Readonly<Record<Provider, string>> = {
+  openai: "OPENAI_API_KEY",
+  claude: "ANTHROPIC_API_KEY",
+  deepseek: "DEEPSEEK_API_KEY",
+};
+
+/**
+ * PROVIDER wins. Otherwise use whichever provider has an API key set, so
+ * `ANTHROPIC_API_KEY=... npx @clickonsearch/whatsapp-agent` just works.
+ * OpenAI stays the default when its key is set or when no key is set.
+ */
+export function resolveProvider(env: NodeJS.ProcessEnv = process.env): Provider {
+  const fromEnv = env.PROVIDER;
+  if (isProvider(fromEnv)) return fromEnv;
+  if (fromEnv) {
+    throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
+  }
+  if (env[API_KEY_ENV.openai]) return "openai";
+  return PROVIDERS.find((p) => env[API_KEY_ENV[p]]) ?? "openai";
+}
+
 export const WHATSAPP_SERVER_NAME = "whatsapp";
 
 /**

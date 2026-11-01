@@ -1,16 +1,7 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { startListener } from "./listener.js";
-import { isProvider, PROVIDERS, type Provider } from "./providers.js";
-
-function resolveProvider(): Provider {
-  const fromEnv = process.env.PROVIDER;
-  if (isProvider(fromEnv)) return fromEnv;
-  if (fromEnv) {
-    throw new Error(`PROVIDER must be one of ${PROVIDERS.join(", ")}, got "${fromEnv}"`);
-  }
-  return "openai";
-}
+import { API_KEY_ENV, resolveProvider, type Provider } from "./providers.js";
 
 async function main(): Promise<void> {
   let provider: Provider;
@@ -18,6 +9,16 @@ async function main(): Promise<void> {
     provider = resolveProvider();
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+    return;
+  }
+
+  const keyVar = API_KEY_ENV[provider];
+  if (!process.env[keyVar]) {
+    console.error(
+      `Missing ${keyVar}. Set it to use ${provider}, e.g.:\n  ${keyVar}=<your-key> npx @clickonsearch/whatsapp-agent\n` +
+        "(or set another provider's API key, or PROVIDER=openai|claude|deepseek).",
+    );
     process.exitCode = 1;
     return;
   }
