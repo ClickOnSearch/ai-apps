@@ -15,6 +15,13 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   written. `#hashtags` are kept as real hashtags; `@mentions` and markdown
   appear literally.
 
+### Changed
+
+- Updated `zod` 3 to 4 (fixes a high-severity advisory about memory
+  exhaustion when validating oversized constrained collections) and patched
+  transitive packages (`body-parser`, `qs`, `fast-uri`, `ip-address`). Tool
+  schemas, limits and input validation are unchanged.
+
 ## [0.2.0] - 2026-10-06
 
 ### Security

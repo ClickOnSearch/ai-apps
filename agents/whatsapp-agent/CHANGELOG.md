@@ -19,6 +19,9 @@ Each entry corresponds to the npm version it shipped in. Format follows
 
 ### Changed
 
+- Updated dependencies: `openai` 4 to 7, `@anthropic-ai/sdk` 0.32 to 1.3,
+  `@ag-ui/core` and `@ag-ui/encoder` 1.0.3, and the provider bridges to
+  `^0.3.0`, plus patched transitive packages. Behavior is unchanged.
 - While waiting for WhatsApp, the agent now says what is actually wrong:
   either `whatsapp-mcp-server` isn't running (with the command to start it) or
   it's running but WhatsApp isn't linked yet (scan the QR code). It repeats
