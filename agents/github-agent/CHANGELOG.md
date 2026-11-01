@@ -4,6 +4,15 @@ All notable changes to `@clickonsearch/github-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.3] - 2026-11-01
+
+### Changed
+
+- Updated dependencies: `openai` 4 to 7, `@anthropic-ai/sdk` 0.32 to 1.3,
+  `@ag-ui/core` and `@ag-ui/encoder` 1.0.3, and the provider bridges to
+  `^0.3.0`. Also picks up patched transitive packages (`body-parser`, `qs`,
+  `fast-uri`, `ip-address`). Behavior is unchanged.
+
 ## [0.1.2] - 2026-10-03
 
 ### Changed

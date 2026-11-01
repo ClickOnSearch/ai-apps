@@ -9,5 +9,8 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
   }
 }

@@ -17,6 +17,10 @@ follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Prints the session folder on start, and the logged-out message now says
   which folder to delete to link again.
 - README: clearer first-run steps and a tip for a QR code that looks garbled.
+- Updated `zod` 3 to 4 (fixes a high-severity advisory about memory
+  exhaustion when validating oversized constrained collections) and patched
+  transitive packages (`body-parser`, `qs`, `fast-uri`, `ip-address`). Tool
+  schemas, limits and input validation are unchanged.
 
 ## [0.2.0] - 2026-10-06
 
