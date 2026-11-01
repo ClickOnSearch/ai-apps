@@ -89,6 +89,7 @@ already runs its own remote MCP server, so there's no `mcp-servers/github`
 | --- | --- |
 | [`whatsapp-mcp-server`](mcp-servers/whatsapp-mcp-server) | Your WhatsApp account (via Baileys) — send/list/search messages |
 | [`linkedin-mcp-server`](mcp-servers/linkedin-mcp-server) | Your LinkedIn account (via OAuth) — read profile, publish posts |
+| [`jira-mcp-server`](mcp-servers/jira-mcp-server) | Your Jira Cloud site (via API token) — create, read, search and comment on stories |
 
 ### `skills/` — reusable instructions agents can turn on
 

@@ -2,11 +2,11 @@
 
 Lets an AI agent work with Jira Cloud: create stories that have numbered
 acceptance criteria, read and search them, and comment. Anything that writes to
-Jira can run as a dry run first. Usually you won't run this directly;
-[`adlc-agent`](../../agents/adlc-agent) includes it.
+Jira can run as a dry run first. Use it from any AI tool that supports MCP, or
+from this repo's model bridges.
 
 ```
-adlc-agent (or any MCP client)
+an AI agent (any MCP client)
                │
                ▼
 ┌─────────────────────────────┐
@@ -35,7 +35,26 @@ JIRA_API_TOKEN=<your-api-token> \
   npx @clickonsearch/jira-mcp-server
 ```
 
-It listens on `http://127.0.0.1:4400` for whatever agent you point at it.
+It listens on `http://127.0.0.1:4400` for whatever agent you point at it. The
+MCP endpoint is `http://127.0.0.1:4400/mcp`.
+
+## Use it from an AI tool
+
+Point any tool that supports HTTP MCP servers at that URL. For example:
+
+```bash
+# Claude Code
+claude mcp add --transport http jira http://127.0.0.1:4400/mcp
+```
+
+```json
+// VS Code / GitHub Copilot: .vscode/mcp.json
+{ "servers": { "jira": { "type": "http", "url": "http://127.0.0.1:4400/mcp" } } }
+```
+
+(Check your tool's docs for the exact file or command.) Ask it to turn a
+requirement into stories with testable acceptance criteria, or to read a story
+and comment on it.
 
 ## What it exposes
 
@@ -47,8 +66,9 @@ It listens on `http://127.0.0.1:4400` for whatever agent you point at it.
 | `add_comment` | Adds a comment to an issue |
 
 **Dry run:** send the header `X-Dry-Run: 1` and `create_story` and `add_comment`
-return the draft instead of touching Jira. `adlc-agent` uses this so you see a
-plan before anything is created.
+return the draft instead of touching Jira, so a plan can be shown before
+anything is created. Tools that can't set headers always get real writes, so
+point them at a Jira project you are happy to write to.
 
 ## Config reference
 
