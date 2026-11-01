@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Response } from "express";
-import { EventType, contentToText } from "@ag-ui/core";
+import { EventType, contentToText, omitOptionalNulls } from "@ag-ui/core";
 import type { BaseEvent, Message, RunAgentInput } from "@ag-ui/core";
-import { EventEncoder } from "@ag-ui/encoder";
 import { runAssistantAgent, isProvider, type Provider } from "./providers.js";
 
 /**
@@ -38,7 +37,13 @@ export interface RunAgUiRequestParams {
   mcpServerUrl: string;
   defaultProvider: Provider;
   res: Response;
+  /** Ignored: events are always sent as Server-Sent Events. Kept so existing callers still compile. */
   acceptHeader?: string;
+}
+
+/** One AG-UI event as a Server-Sent Events frame, the same wire format as @ag-ui/encoder's SSE output. */
+function encodeSse(event: BaseEvent): string {
+  return `data: ${JSON.stringify(omitOptionalNulls(event, "Event"))}\n\n`;
 }
 
 /**
@@ -46,18 +51,16 @@ export interface RunAgUiRequestParams {
  * result to `res` as AG-UI protocol events (SSE by default).
  */
 export async function runAgUiRequest(params: RunAgUiRequestParams): Promise<void> {
-  const { input, mcpServerUrl, defaultProvider, res, acceptHeader } = params;
-  const encoder = new EventEncoder({ accept: acceptHeader });
-
+  const { input, mcpServerUrl, defaultProvider, res } = params;
   res.writeHead(200, {
-    "Content-Type": encoder.getContentType(),
+    "Content-Type": "text/event-stream",
     "Cache-Control": "no-cache, no-transform",
     Connection: "keep-alive",
     "X-Accel-Buffering": "no",
   });
 
   const emit = (event: BaseEvent) => {
-    res.write(encoder.encode(event));
+    res.write(encodeSse(event));
   };
 
   const threadId = input.threadId ?? randomUUID();

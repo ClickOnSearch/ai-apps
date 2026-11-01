@@ -4,6 +4,23 @@ All notable changes to `@clickonsearch/linkedin-agent` are documented here.
 Each entry corresponds to the npm version it shipped in. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.1.5] - 2026-11-01
+
+### Security
+
+- Removes the vulnerable `zod` 3.25.x that came in through `@ag-ui/encoder`
+  (via `@ag-ui/proto`), which can exhaust memory while validating oversized
+  constrained collections (GitHub Dependabot alert for `zod`, fixed in 4.6.6).
+  The agents now format the browser chat's Server-Sent Events themselves, and
+  declare `zod` ^4.6.7 directly because `@ag-ui/core` needs it. `npm audit`
+  now reports no vulnerabilities.
+
+### Changed
+
+- The browser chat is unchanged: the same events, in the same order, in the
+  same `data: {json}` format. It now always sends Server-Sent Events; a client
+  that asks only for the Protobuf format gets Server-Sent Events instead.
+
 ## [0.1.4] - 2026-11-01
 
 ### Fixed
